@@ -29,6 +29,7 @@ import SortableSpotCard from "@/components/itinerary/SortableSpotCard";
 import SpotSearchPanel from "@/components/itinerary/SpotSearchPanel";
 import RecommendedSpots from "@/components/itinerary/RecommendedSpots";
 import GoogleMap from "@/components/map/GoogleMap";
+import { useAuth } from "@/lib/auth-context";
 
 // Droppable wrapper for the itinerary list
 function ItineraryDropZone({ children, isOver }: { children: React.ReactNode; isOver: boolean }) {
@@ -52,6 +53,7 @@ function ItineraryDropZone({ children, isOver }: { children: React.ReactNode; is
 }
 
 export default function EditorPage() {
+  const { user } = useAuth();
   const itinerary = SAMPLE_ITINERARIES[0];
   const [days, setDays] = useState<ItineraryDay[]>(
     itinerary.days.filter((d) => d.items.length > 0)
@@ -329,7 +331,44 @@ export default function EditorPage() {
           <RecommendedSpots spots={spots} onAddSpot={handleAddSpot} usedSpotIds={usedSpotIds} />
 
           {/* MAP AREA (right column) */}
-          <GoogleMap items={items} />
+          {user ? (
+            <GoogleMap items={items} />
+          ) : (
+            <div className="relative overflow-hidden">
+              <div
+                className="absolute inset-0"
+                style={{
+                  background:
+                    "radial-gradient(ellipse at 30% 40%, #d4e4d8 0%, transparent 50%), radial-gradient(ellipse at 70% 60%, #c8d8cc 0%, transparent 50%), linear-gradient(135deg, #e4ece6 0%, #d8e4dc 100%)",
+                }}
+              />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="bg-white/95 backdrop-blur rounded-xl shadow-lg p-8 max-w-xs text-center">
+                  <div className="w-12 h-12 bg-accent-light rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-base font-semibold text-gray-900 mb-2">
+                    Interactive Map
+                  </h3>
+                  <p className="text-sm text-gray-500 mb-4">
+                    Log in to see your spots on an interactive Google Map
+                  </p>
+                  <button
+                    onClick={() => {
+                      // Trigger login modal via a custom event
+                      window.dispatchEvent(new CustomEvent("open-login-modal"));
+                    }}
+                    className="w-full py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors"
+                  >
+                    Log in to unlock
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
