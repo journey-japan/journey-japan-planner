@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Spot } from "@/types";
-import { SAMPLE_SPOTS } from "@/lib/sample-data";
 import DraggableRecommendedCard from "./DraggableRecommendedCard";
 
 type FilterTab = "all" | "sightseeing" | "food" | "shopping" | "nature";
@@ -24,14 +23,15 @@ const FILTER_MAP: Record<FilterTab, string[]> = {
 };
 
 interface RecommendedSpotsProps {
+  spots: Spot[];
   onAddSpot: (spot: Spot) => void;
   usedSpotIds: string[];
 }
 
-export default function RecommendedSpots({ onAddSpot, usedSpotIds }: RecommendedSpotsProps) {
+export default function RecommendedSpots({ spots, onAddSpot, usedSpotIds }: RecommendedSpotsProps) {
   const [activeFilter, setActiveFilter] = useState<FilterTab>("all");
 
-  const filteredSpots = SAMPLE_SPOTS.filter((spot) => {
+  const filteredSpots = spots.filter((spot) => {
     if (activeFilter !== "all" && !FILTER_MAP[activeFilter].includes(spot.category)) {
       return false;
     }

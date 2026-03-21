@@ -3,9 +3,17 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ItineraryCard from "@/components/itinerary/ItineraryCard";
 import { AREAS } from "@/types";
+import { getItineraries, getSpots } from "@/lib/db";
 import { SAMPLE_ITINERARIES } from "@/lib/sample-data";
 
-export default function HomePage() {
+export default async function HomePage() {
+  // Try fetching from DB, fall back to sample data
+  let itineraries = await getItineraries();
+  const useFallback = itineraries.length === 0;
+  if (useFallback) {
+    itineraries = SAMPLE_ITINERARIES;
+  }
+
   return (
     <>
       <Header />
@@ -92,7 +100,7 @@ export default function HomePage() {
 
         {/* Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {SAMPLE_ITINERARIES.map((itinerary, index) => (
+          {itineraries.map((itinerary, index) => (
             <ItineraryCard
               key={itinerary.id}
               itinerary={itinerary}

@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Spot } from "@/types";
-import { SAMPLE_SPOTS } from "@/lib/sample-data";
 
 const CATEGORY_EMOJIS: Record<string, string> = {
   shrine: "⛩️",
@@ -21,6 +20,7 @@ const CATEGORY_EMOJIS: Record<string, string> = {
 };
 
 interface SpotSearchPanelProps {
+  spots: Spot[];
   isOpen: boolean;
   onClose: () => void;
   onAddSpot: (spot: Spot) => void;
@@ -28,6 +28,7 @@ interface SpotSearchPanelProps {
 }
 
 export default function SpotSearchPanel({
+  spots,
   isOpen,
   onClose,
   onAddSpot,
@@ -37,7 +38,7 @@ export default function SpotSearchPanel({
 
   if (!isOpen) return null;
 
-  const filteredSpots = SAMPLE_SPOTS.filter(
+  const filteredSpots = spots.filter(
     (spot) =>
       !excludeSpotIds.includes(spot.id) &&
       (query === "" ||

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   DndContext,
   closestCenter,
@@ -23,7 +23,8 @@ import {
 } from "@dnd-kit/sortable";
 import Link from "next/link";
 import { ItineraryItem, ItineraryDay, Spot } from "@/types";
-import { SAMPLE_ITINERARIES, getSpotById } from "@/lib/sample-data";
+import { SAMPLE_ITINERARIES, SAMPLE_SPOTS } from "@/lib/sample-data";
+import { getSpots } from "@/lib/db";
 import SortableSpotCard from "@/components/itinerary/SortableSpotCard";
 import SpotSearchPanel from "@/components/itinerary/SpotSearchPanel";
 import RecommendedSpots from "@/components/itinerary/RecommendedSpots";
@@ -59,6 +60,16 @@ export default function EditorPage() {
   const [title, setTitle] = useState(itinerary.title);
   const [draggingSpot, setDraggingSpot] = useState<Spot | null>(null);
   const [isOverItinerary, setIsOverItinerary] = useState(false);
+  const [spots, setSpots] = useState<Spot[]>(SAMPLE_SPOTS);
+
+  // Fetch spots from DB on mount, fall back to sample data
+  useEffect(() => {
+    getSpots("tokyo").then((dbSpots) => {
+      if (dbSpots.length > 0) {
+        setSpots(dbSpots);
+      }
+    });
+  }, []);
 
   const currentDay = days[activeDay];
   const items = currentDay?.items || [];
@@ -305,6 +316,7 @@ export default function EditorPage() {
 
             {/* Search panel overlay */}
             <SpotSearchPanel
+              spots={spots}
               isOpen={isSearchOpen}
               onClose={() => setIsSearchOpen(false)}
               onAddSpot={handleAddSpot}
@@ -313,7 +325,7 @@ export default function EditorPage() {
           </div>
 
           {/* RECOMMENDED SPOTS (center column) */}
-          <RecommendedSpots onAddSpot={handleAddSpot} usedSpotIds={usedSpotIds} />
+          <RecommendedSpots spots={spots} onAddSpot={handleAddSpot} usedSpotIds={usedSpotIds} />
 
           {/* MAP AREA (right column) */}
           <div className="relative overflow-hidden">
