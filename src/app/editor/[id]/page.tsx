@@ -28,6 +28,7 @@ import { getSpots } from "@/lib/db";
 import SortableSpotCard from "@/components/itinerary/SortableSpotCard";
 import SpotSearchPanel from "@/components/itinerary/SpotSearchPanel";
 import RecommendedSpots from "@/components/itinerary/RecommendedSpots";
+import GoogleMap from "@/components/map/GoogleMap";
 
 // Droppable wrapper for the itinerary list
 function ItineraryDropZone({ children, isOver }: { children: React.ReactNode; isOver: boolean }) {
@@ -328,63 +329,7 @@ export default function EditorPage() {
           <RecommendedSpots spots={spots} onAddSpot={handleAddSpot} usedSpotIds={usedSpotIds} />
 
           {/* MAP AREA (right column) */}
-          <div className="relative overflow-hidden">
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  "radial-gradient(ellipse at 30% 40%, #d4e4d8 0%, transparent 50%), radial-gradient(ellipse at 70% 60%, #c8d8cc 0%, transparent 50%), linear-gradient(135deg, #e4ece6 0%, #d8e4dc 100%)",
-              }}
-            />
-
-            {/* Map pins */}
-            {items.map((item, i) => {
-              const positions = [
-                { top: "20%", left: "35%" },
-                { top: "28%", left: "42%" },
-                { top: "40%", left: "38%" },
-                { top: "38%", left: "48%" },
-                { top: "18%", left: "55%" },
-                { top: "55%", left: "62%" },
-                { top: "65%", left: "30%" },
-                { top: "50%", left: "45%" },
-              ];
-              const pos = positions[i % positions.length];
-              return (
-                <div
-                  key={item.id}
-                  className="absolute flex flex-col items-center cursor-pointer hover:scale-110 transition-transform z-10"
-                  style={{ top: pos.top, left: pos.left }}
-                >
-                  <div className="w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center text-xs font-bold shadow-md">
-                    {i + 1}
-                  </div>
-                  <div className="mt-1 text-[11px] font-semibold text-gray-700 bg-white/90 px-2 py-0.5 rounded shadow-sm whitespace-nowrap">
-                    {item.spot.nameEn.length > 15
-                      ? item.spot.nameEn.slice(0, 15) + "..."
-                      : item.spot.nameEn}
-                  </div>
-                </div>
-              );
-            })}
-
-            {/* Map controls */}
-            <div className="absolute top-4 right-4 flex flex-col gap-1">
-              {["+", "−", "⊕"].map((icon) => (
-                <button
-                  key={icon}
-                  className="w-9 h-9 bg-white border border-gray-200 rounded-lg flex items-center justify-center text-gray-600 shadow-sm hover:bg-gray-50"
-                >
-                  {icon}
-                </button>
-              ))}
-            </div>
-
-            {/* Map note */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur px-4 py-2 rounded-lg shadow text-sm text-gray-500">
-              Google Maps will be integrated here
-            </div>
-          </div>
+          <GoogleMap items={items} />
         </div>
       </div>
 
