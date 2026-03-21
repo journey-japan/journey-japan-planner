@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 
-type AuthMode = "login" | "signup" | "magic-link" | "magic-link-sent";
+type AuthMode = "login" | "signup" | "magic-link" | "magic-link-sent" | "signup-success";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -60,9 +60,8 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
         setLoading(false);
       } else {
         setError("");
-        setMode("login");
+        setMode("signup-success");
         setLoading(false);
-        alert("Check your email to confirm your account!");
       }
     } else if (mode === "magic-link") {
       const { error } = await signInWithMagicLink(email);
@@ -92,17 +91,37 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
             J
           </div>
           <h2 className="text-xl font-bold text-gray-900">
-            {mode === "signup" ? "Create your account" : "Welcome back"}
+            {mode === "signup" ? "Create your account" : mode === "signup-success" ? "Almost there!" : "Welcome back"}
           </h2>
           <p className="text-sm text-gray-500 mt-1">
             {mode === "signup"
               ? "Start planning your perfect Japan trip"
+              : mode === "signup-success"
+              ? "Just one more step"
               : "Log in to continue planning"}
           </p>
         </div>
 
-        {/* Magic link sent state */}
-        {mode === "magic-link-sent" ? (
+        {/* Signup success state */}
+        {mode === "signup-success" ? (
+          <div className="px-8 pb-8 text-center">
+            <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Account created!</h3>
+            <p className="text-sm text-gray-500 mb-6">
+              We&apos;ve sent a confirmation email to <strong>{email}</strong>. Please check your inbox and click the link to activate your account.
+            </p>
+            <button
+              onClick={() => { setMode("login"); resetForm(); }}
+              className="w-full py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors"
+            >
+              Back to Log In
+            </button>
+          </div>
+        ) : mode === "magic-link-sent" ? (
           <div className="px-8 pb-8 text-center">
             <div className="w-16 h-16 bg-accent-light rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">

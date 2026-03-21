@@ -48,9 +48,20 @@ export default function DraggableRecommendedCard({
       }`}
       {...(isAdded ? {} : { ...attributes, ...listeners })}
     >
-      {/* Image placeholder */}
-      <div className="h-24 bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center text-3xl relative">
-        {CATEGORY_EMOJIS[spot.category] || "📍"}
+      {/* Image */}
+      <div className="h-24 bg-gray-100 relative overflow-hidden">
+        {spot.photoUrls && spot.photoUrls.length > 0 ? (
+          <img
+            src={spot.photoUrls[0]}
+            alt={spot.nameEn}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-3xl bg-gradient-to-br from-gray-100 to-gray-50">
+            {CATEGORY_EMOJIS[spot.category] || "📍"}
+          </div>
+        )}
         {spot.admissionFee && (
           <span className="absolute top-2 right-2 text-[10px] font-medium text-gray-500 bg-white/90 px-1.5 py-0.5 rounded">
             {spot.admissionFee}
