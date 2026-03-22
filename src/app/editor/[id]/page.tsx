@@ -30,6 +30,7 @@ import SortableSpotCard from "@/components/itinerary/SortableSpotCard";
 import SpotSearchPanel from "@/components/itinerary/SpotSearchPanel";
 import RecommendedSpots from "@/components/itinerary/RecommendedSpots";
 import GoogleMap from "@/components/map/GoogleMap";
+import LoginModal from "@/components/auth/LoginModal";
 import { useAuth } from "@/lib/auth-context";
 
 // Droppable wrapper for the itinerary list
@@ -69,6 +70,7 @@ export default function EditorPage() {
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishedId, setPublishedId] = useState<string | null>(null);
   const [showShareToast, setShowShareToast] = useState(false);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   // Fetch spots from DB on mount, fall back to sample data
   useEffect(() => {
@@ -229,7 +231,7 @@ export default function EditorPage() {
   // Publish itinerary
   const handlePublish = useCallback(async () => {
     if (!user) {
-      window.dispatchEvent(new CustomEvent("open-login-modal"));
+      setLoginModalOpen(true);
       return;
     }
 
@@ -460,10 +462,7 @@ export default function EditorPage() {
                     Log in to see your spots on an interactive Google Map
                   </p>
                   <button
-                    onClick={() => {
-                      // Trigger login modal via a custom event
-                      window.dispatchEvent(new CustomEvent("open-login-modal"));
-                    }}
+                    onClick={() => setLoginModalOpen(true)}
                     className="w-full py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors"
                   >
                     Log in to unlock
@@ -487,6 +486,11 @@ export default function EditorPage() {
           </div>
         )}
       </DragOverlay>
+
+      <LoginModal
+        isOpen={loginModalOpen}
+        onClose={() => setLoginModalOpen(false)}
+      />
     </DndContext>
   );
 }
