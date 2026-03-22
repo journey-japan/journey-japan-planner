@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ItineraryCard from "@/components/itinerary/ItineraryCard";
@@ -14,15 +15,65 @@ export default async function HomePage() {
     itineraries = SAMPLE_ITINERARIES;
   }
 
+  // JSON-LD structured data for SEO
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "Journey Japan",
+    url: "https://plan.journeyjpn.com",
+    description:
+      "Plan your perfect Japan trip with curated itineraries from travel professionals. Drag-and-drop editor, interactive maps, and 50+ must-visit spots.",
+    applicationCategory: "TravelApplication",
+    operatingSystem: "Web",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+    },
+    author: {
+      "@type": "Organization",
+      name: "Journey Japan",
+      url: "https://journeyjpn.com",
+    },
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://plan.journeyjpn.com",
+      },
+    ],
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <Header />
+      <main>
 
       {/* ===== HERO ===== */}
-      <section
-        className="relative bg-cover bg-center bg-no-repeat py-24 px-6 text-center"
-        style={{ backgroundImage: "url('/hero-bg_r1.jpg')" }}
-      >
+      <section className="relative py-24 px-6 text-center overflow-hidden">
+        {/* Hero background image */}
+        <Image
+          src="/hero-bg_r1.jpg"
+          alt="Japan trip planner showing Tokyo Tower, Mount Fuji, cherry blossoms, and an interactive itinerary editor"
+          fill
+          priority
+          className="object-cover object-center"
+          sizes="100vw"
+        />
         {/* Overlay for text readability */}
         <div className="absolute inset-0 bg-black/35" />
 
@@ -172,6 +223,7 @@ export default async function HomePage() {
         </div>
       </section>
 
+      </main>
       <Footer />
     </>
   );
