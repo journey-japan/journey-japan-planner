@@ -15,9 +15,10 @@ const TRANSPORT_ICONS: Record<string, string> = {
 interface SortableSpotCardProps {
   item: ItineraryItem;
   index: number;
+  onRemove?: (itemId: string) => void;
 }
 
-export default function SortableSpotCard({ item, index }: SortableSpotCardProps) {
+export default function SortableSpotCard({ item, index, onRemove }: SortableSpotCardProps) {
   const {
     attributes,
     listeners,
@@ -74,7 +75,14 @@ export default function SortableSpotCard({ item, index }: SortableSpotCardProps)
           <button className="w-7 h-7 rounded-md bg-gray-100 hover:bg-gray-200 text-gray-400 hover:text-gray-600 flex items-center justify-center text-sm">
             ✎
           </button>
-          <button className="w-7 h-7 rounded-md bg-gray-100 hover:bg-red-100 text-gray-400 hover:text-red-500 flex items-center justify-center text-sm">
+          <button
+            className="w-7 h-7 rounded-md bg-gray-100 hover:bg-red-100 text-gray-400 hover:text-red-500 flex items-center justify-center text-sm"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemove?.(item.id);
+            }}
+          >
             ×
           </button>
         </div>

@@ -193,6 +193,22 @@ export default function EditorPage() {
     [activeDay, currentDay, items.length]
   );
 
+  // Remove spot from itinerary
+  const handleRemoveSpot = useCallback(
+    (itemId: string) => {
+      setDays((prev) => {
+        const newDays = [...prev];
+        const dayItems = newDays[activeDay].items.filter((i) => i.id !== itemId);
+        newDays[activeDay] = {
+          ...newDays[activeDay],
+          items: dayItems.map((item, idx) => ({ ...item, orderIndex: idx })),
+        };
+        return newDays;
+      });
+    },
+    [activeDay]
+  );
+
   const usedSpotIds = items.map((i) => i.spotId);
 
   // Custom collision detection: prefer itinerary items and drop zone
@@ -303,6 +319,7 @@ export default function EditorPage() {
                         key={item.id}
                         item={item}
                         index={index}
+                        onRemove={handleRemoveSpot}
                       />
                     ))}
                   </SortableContext>
