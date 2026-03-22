@@ -21,7 +21,7 @@ export default async function HomePage() {
       {/* ===== HERO ===== */}
       <section
         className="relative bg-cover bg-center bg-no-repeat py-24 px-6 text-center"
-        style={{ backgroundImage: "url('/hero-bg.png')" }}
+        style={{ backgroundImage: "url('/hero-bg_r1.jpg')" }}
       >
         {/* Overlay for text readability */}
         <div className="absolute inset-0 bg-black/35" />
