@@ -19,32 +19,40 @@ export default async function HomePage() {
       <Header />
 
       {/* ===== HERO ===== */}
-      <section className="bg-gradient-to-br from-gray-50 via-accent-light to-blue-50/30 py-20 px-6 text-center">
-        <div className="inline-flex items-center gap-2 bg-white border border-gray-200 px-3.5 py-1.5 rounded-full text-[13px] text-gray-500 mb-6">
-          <span className="w-1.5 h-1.5 bg-accent rounded-full" />
-          Japan-focused trip planner
-        </div>
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-          Plan your perfect{" "}
-          <span className="text-accent">Japan</span> trip
-        </h1>
-        <p className="text-lg text-gray-500 max-w-xl mx-auto mb-8">
-          Browse curated itineraries from travel professionals, or build your
-          own day-by-day plan with our intuitive drag-and-drop editor.
-        </p>
-        <div className="flex gap-3 justify-center">
-          <Link
-            href="/editor/new"
-            className="bg-accent hover:bg-accent-hover text-white font-medium px-7 py-3 rounded-xl transition-colors shadow-md shadow-accent/25"
-          >
-            Start Planning
-          </Link>
-          <Link
-            href="#itineraries"
-            className="border border-gray-300 hover:border-gray-400 text-gray-700 font-medium px-7 py-3 rounded-xl transition-colors hover:bg-gray-50"
-          >
-            Browse Itineraries
-          </Link>
+      <section
+        className="relative bg-cover bg-center bg-no-repeat py-24 px-6 text-center"
+        style={{ backgroundImage: "url('/hero-bg.png')" }}
+      >
+        {/* Overlay for text readability */}
+        <div className="absolute inset-0 bg-black/35" />
+
+        <div className="relative z-10">
+          <div className="inline-flex items-center gap-2 bg-white/90 backdrop-blur-sm border border-white/50 px-3.5 py-1.5 rounded-full text-[13px] text-gray-600 mb-6">
+            <span className="w-1.5 h-1.5 bg-accent rounded-full" />
+            Japan-focused trip planner
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-white drop-shadow-lg">
+            Plan your perfect{" "}
+            <span className="text-green-300">Japan</span> trip
+          </h1>
+          <p className="text-lg text-white/85 max-w-xl mx-auto mb-8 drop-shadow">
+            Browse curated itineraries from travel professionals, or build your
+            own day-by-day plan with our intuitive drag-and-drop editor.
+          </p>
+          <div className="flex gap-3 justify-center">
+            <Link
+              href="/editor/new"
+              className="bg-accent hover:bg-accent-hover text-white font-medium px-7 py-3 rounded-xl transition-colors shadow-lg"
+            >
+              Start Planning
+            </Link>
+            <Link
+              href="#itineraries"
+              className="border border-white/60 hover:border-white text-white font-medium px-7 py-3 rounded-xl transition-colors hover:bg-white/10 backdrop-blur-sm"
+            >
+              Browse Itineraries
+            </Link>
+          </div>
         </div>
       </section>
 
