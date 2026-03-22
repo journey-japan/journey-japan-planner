@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import CookieConsent from "@/components/layout/CookieConsent";
+
+const GA_ID = "G-5HXRQZT8LF";
 
 const SITE_URL = "https://plan.journeyjpn.com";
 const SITE_NAME = "Journey Japan";
@@ -75,6 +78,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_ID}');
+          `}
+        </Script>
+      </head>
       <body className="font-sans text-gray-900 bg-white">
         <AuthProvider>
           {children}
