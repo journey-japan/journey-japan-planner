@@ -22,9 +22,10 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ItineraryItem, ItineraryDay, Spot } from "@/types";
 import { SAMPLE_ITINERARIES, SAMPLE_SPOTS } from "@/lib/sample-data";
-import { getSpots } from "@/lib/db";
+import { getSpots, publishItinerary } from "@/lib/db";
 import SortableSpotCard from "@/components/itinerary/SortableSpotCard";
 import SpotSearchPanel from "@/components/itinerary/SpotSearchPanel";
 import RecommendedSpots from "@/components/itinerary/RecommendedSpots";
@@ -54,6 +55,7 @@ function ItineraryDropZone({ children, isOver }: { children: React.ReactNode; is
 
 export default function EditorPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const itinerary = SAMPLE_ITINERARIES[0];
   const [days, setDays] = useState<ItineraryDay[]>(
     itinerary.days.filter((d) => d.items.length > 0)
@@ -64,6 +66,9 @@ export default function EditorPage() {
   const [draggingSpot, setDraggingSpot] = useState<Spot | null>(null);
   const [isOverItinerary, setIsOverItinerary] = useState(false);
   const [spots, setSpots] = useState<Spot[]>(SAMPLE_SPOTS);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [publishedId, setPublishedId] = useState<string | null>(null);
+  const [showShareToast, setShowShareToast] = useState(false);
 
   // Fetch spots from DB on mount, fall back to sample data
   useEffect(() => {
@@ -221,6 +226,53 @@ export default function EditorPage() {
     });
   }, [activeDay]);
 
+  // Publish itinerary
+  const handlePublish = useCallback(async () => {
+    if (!user) {
+      window.dispatchEvent(new CustomEvent("open-login-modal"));
+      return;
+    }
+
+    const totalSpots = days.reduce((sum, d) => sum + d.items.length, 0);
+    if (totalSpots === 0) {
+      alert("Add at least one spot before publishing.");
+      return;
+    }
+
+    setIsPublishing(true);
+    const result = await publishItinerary({
+      userId: user.id,
+      title,
+      description: itinerary.description,
+      area: itinerary.area,
+      days,
+      tags: itinerary.tags,
+    });
+
+    setIsPublishing(false);
+
+    if ("error" in result) {
+      alert("Failed to publish: " + result.error);
+      return;
+    }
+
+    setPublishedId(result.id);
+    router.push(`/itineraries/${result.id}`);
+  }, [user, title, days, itinerary, router]);
+
+  // Copy share link
+  const handleShareLink = useCallback(() => {
+    if (publishedId) {
+      navigator.clipboard.writeText(
+        `https://plan.journeyjpn.com/itineraries/${publishedId}`
+      );
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+    }
+    setShowShareToast(true);
+    setTimeout(() => setShowShareToast(false), 2000);
+  }, [publishedId]);
+
   const usedSpotIds = items.map((i) => i.spotId);
 
   // Custom collision detection: prefer itinerary items and drop zone
@@ -258,20 +310,32 @@ export default function EditorPage() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
-            <span className="text-xs text-gray-400 bg-gray-100 px-2.5 py-1 rounded">
-              Draft
+            <span className={`text-xs px-2.5 py-1 rounded ${publishedId ? "text-accent bg-accent-light font-medium" : "text-gray-400 bg-gray-100"}`}>
+              {publishedId ? "Published" : "Draft"}
             </span>
           </div>
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 relative">
             <button className="text-sm text-gray-500 hover:text-gray-700 px-4 py-1.5 rounded-lg hover:bg-gray-100 transition-all">
               Preview
             </button>
-            <button className="text-sm text-gray-600 border border-gray-300 hover:border-gray-400 px-4 py-1.5 rounded-lg transition-all">
+            <button
+              onClick={handleShareLink}
+              className="text-sm text-gray-600 border border-gray-300 hover:border-gray-400 px-4 py-1.5 rounded-lg transition-all"
+            >
               Share Link
             </button>
-            <button className="text-sm text-white bg-accent hover:bg-accent-hover px-5 py-1.5 rounded-lg transition-colors">
-              Publish
+            <button
+              onClick={handlePublish}
+              disabled={isPublishing}
+              className="text-sm text-white bg-accent hover:bg-accent-hover px-5 py-1.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isPublishing ? "Publishing..." : publishedId ? "Published" : "Publish"}
             </button>
+            {showShareToast && (
+              <div className="absolute top-full right-0 mt-2 bg-gray-800 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap">
+                Link copied!
+              </div>
+            )}
           </div>
         </div>
 

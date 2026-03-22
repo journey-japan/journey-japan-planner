@@ -105,6 +105,99 @@ export async function getItineraryWithDetails(id: string): Promise<Itinerary | n
   return itinerary;
 }
 
+// ===== PUBLISH ITINERARY =====
+
+export async function publishItinerary({
+  userId,
+  title,
+  description,
+  area,
+  days,
+  tags,
+}: {
+  userId: string;
+  title: string;
+  description: string;
+  area: string;
+  days: ItineraryDay[];
+  tags: string[];
+}): Promise<{ id: string } | { error: string }> {
+  // 1. Insert itinerary
+  const { data: itinData, error: itinError } = await supabase
+    .from("itineraries")
+    .insert({
+      user_id: userId,
+      title,
+      description,
+      area,
+      duration_days: days.length,
+      status: "published",
+      is_pro: false,
+      tags,
+      view_count: 0,
+    })
+    .select("id")
+    .single();
+
+  if (itinError || !itinData) {
+    console.error("Error inserting itinerary:", itinError);
+    return { error: itinError?.message || "Failed to create itinerary" };
+  }
+
+  const itineraryId = itinData.id as string;
+
+  // 2. Insert days
+  for (const day of days) {
+    const { data: dayData, error: dayError } = await supabase
+      .from("itinerary_days")
+      .insert({
+        itinerary_id: itineraryId,
+        day_number: day.dayNumber,
+        date: day.date || null,
+        title: day.title || null,
+      })
+      .select("id")
+      .single();
+
+    if (dayError || !dayData) {
+      console.error("Error inserting day:", dayError);
+      continue;
+    }
+
+    const dayId = dayData.id as string;
+
+    // 3. Insert items for this day
+    if (day.items.length > 0) {
+      const itemRows = day.items.map((item, idx) => ({
+        day_id: dayId,
+        spot_id: item.spotId,
+        order_index: idx,
+        start_time: item.startTime || null,
+        duration_minutes: item.durationMinutes || item.spot.avgDurationMin,
+        note: item.note || null,
+        transport_to_next: item.transportToNext
+          ? {
+              mode: item.transportToNext.mode,
+              durationMinutes: item.transportToNext.durationMinutes,
+              distance: item.transportToNext.distance || null,
+              detail: item.transportToNext.detail || null,
+            }
+          : null,
+      }));
+
+      const { error: itemsError } = await supabase
+        .from("itinerary_items")
+        .insert(itemRows);
+
+      if (itemsError) {
+        console.error("Error inserting items:", itemsError);
+      }
+    }
+  }
+
+  return { id: itineraryId };
+}
+
 // ===== MAPPERS =====
 
 function mapSpot(row: Record<string, unknown>): Spot {
