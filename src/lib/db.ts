@@ -51,6 +51,24 @@ export async function getItineraries(area?: string): Promise<Itinerary[]> {
   return (data || []).map(mapItinerary);
 }
 
+export async function getUserItineraries(userId: string): Promise<Itinerary[]> {
+  const { data, error } = await supabase
+    .from("itineraries")
+    .select(`
+      *,
+      author:profiles!itineraries_user_id_fkey(id, email, display_name, avatar_url, is_pro)
+    `)
+    .eq("user_id", userId)
+    .order("updated_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching user itineraries:", error);
+    return [];
+  }
+
+  return (data || []).map(mapItinerary);
+}
+
 export async function getItineraryWithDetails(id: string): Promise<Itinerary | null> {
   // Fetch itinerary with author
   const { data: itinData, error: itinError } = await supabase
