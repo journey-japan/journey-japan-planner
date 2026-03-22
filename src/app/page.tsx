@@ -171,23 +171,20 @@ export default async function HomePage() {
       <section className="max-w-7xl mx-auto px-6 pt-14 pb-8">
         <div className="flex items-baseline justify-between mb-6">
           <h2 className="text-xl font-bold">Explore by Area</h2>
-          <Link href="#" className="text-sm text-accent font-medium hover:underline">
+          <Link href="/destinations/tokyo" className="text-sm text-accent font-medium hover:underline">
             View all areas
           </Link>
         </div>
         <div className="flex gap-3 overflow-x-auto pb-2">
-          {AREAS.map((area, i) => (
-            <button
+          {AREAS.map((area) => (
+            <Link
               key={area.value}
-              className={`flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
-                i === 0
-                  ? "bg-accent text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-accent-light hover:text-accent border border-transparent hover:border-accent"
-              }`}
+              href={`/destinations/${area.value}`}
+              className="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all bg-gray-100 text-gray-700 hover:bg-accent-light hover:text-accent border border-transparent hover:border-accent"
             >
               <span className="text-lg">{area.emoji}</span>
               {area.label}
-            </button>
+            </Link>
           ))}
         </div>
       </section>

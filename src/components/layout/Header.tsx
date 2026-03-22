@@ -52,7 +52,7 @@ export default function Header() {
             <Link href="/itineraries" className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
               Itineraries
             </Link>
-            <Link href="#" className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
+            <Link href="/destinations/tokyo" className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
               Destinations
             </Link>
             <Link href="#" className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
