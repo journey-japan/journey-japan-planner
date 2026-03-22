@@ -209,6 +209,18 @@ export default function EditorPage() {
     [activeDay]
   );
 
+  // Clear all spots from current day
+  const handleClearAll = useCallback(() => {
+    setDays((prev) => {
+      const newDays = [...prev];
+      newDays[activeDay] = {
+        ...newDays[activeDay],
+        items: [],
+      };
+      return newDays;
+    });
+  }, [activeDay]);
+
   const usedSpotIds = items.map((i) => i.spotId);
 
   // Custom collision detection: prefer itinerary items and drop zone
@@ -303,11 +315,21 @@ export default function EditorPage() {
                       Day {currentDay.dayNumber}
                       {currentDay.title && ` — ${currentDay.title}`}
                     </h3>
-                    {currentDay.date && (
-                      <span className="text-xs text-gray-400">
-                        {currentDay.date}
-                      </span>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {currentDay.date && (
+                        <span className="text-xs text-gray-400">
+                          {currentDay.date}
+                        </span>
+                      )}
+                      {items.length > 0 && (
+                        <button
+                          onClick={handleClearAll}
+                          className="text-xs text-gray-400 hover:text-red-500 px-2 py-1 rounded hover:bg-red-50 transition-colors"
+                        >
+                          Clear All
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   <SortableContext
