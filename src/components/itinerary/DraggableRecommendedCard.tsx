@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { Spot } from "@/types";
 
@@ -36,6 +37,10 @@ export default function DraggableRecommendedCard({
     disabled: isAdded,
   });
 
+  const [photoIndex, setPhotoIndex] = useState(0);
+  const hasPhotos = spot.photoUrls && spot.photoUrls.length > 0;
+  const hasMultiplePhotos = hasPhotos && spot.photoUrls.length > 1;
+
   return (
     <div
       ref={setNodeRef}
@@ -48,12 +53,12 @@ export default function DraggableRecommendedCard({
       }`}
       {...(isAdded ? {} : { ...attributes, ...listeners })}
     >
-      {/* Image */}
-      <div className="h-24 bg-gray-100 relative overflow-hidden">
-        {spot.photoUrls && spot.photoUrls.length > 0 ? (
+      {/* Image carousel */}
+      <div className="h-24 bg-gray-100 relative overflow-hidden group">
+        {hasPhotos ? (
           <img
-            src={spot.photoUrls[0]}
-            alt={spot.nameEn}
+            src={spot.photoUrls[photoIndex]}
+            alt={`${spot.nameEn} ${photoIndex + 1}`}
             className="w-full h-full object-cover"
             loading="lazy"
           />
@@ -62,6 +67,44 @@ export default function DraggableRecommendedCard({
             {CATEGORY_EMOJIS[spot.category] || "📍"}
           </div>
         )}
+
+        {/* Carousel arrows (visible on hover, only if multiple photos) */}
+        {hasMultiplePhotos && (
+          <>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                setPhotoIndex((prev) => (prev === 0 ? spot.photoUrls.length - 1 : prev - 1));
+              }}
+              className="absolute left-1 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-black/40 text-white flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/60"
+            >
+              ‹
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                setPhotoIndex((prev) => (prev === spot.photoUrls.length - 1 ? 0 : prev + 1));
+              }}
+              className="absolute right-1 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-black/40 text-white flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/60"
+            >
+              ›
+            </button>
+            {/* Dot indicators */}
+            <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-1">
+              {spot.photoUrls.map((_, i) => (
+                <span
+                  key={i}
+                  className={`w-1 h-1 rounded-full transition-colors ${
+                    i === photoIndex ? "bg-white" : "bg-white/50"
+                  }`}
+                />
+              ))}
+            </div>
+          </>
+        )}
+
         {spot.admissionFee && (
           <span className="absolute top-2 right-2 text-[10px] font-medium text-gray-500 bg-white/90 px-1.5 py-0.5 rounded">
             {spot.admissionFee}
