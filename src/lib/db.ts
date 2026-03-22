@@ -121,7 +121,8 @@ function mapSpot(row: Record<string, unknown>): Spot {
     address: row.address as string,
     photoUrls: (row.photo_urls as string[]) || [],
     openingHours: row.opening_hours as Record<string, string> | undefined,
-    admissionFee: row.admission_fee as string | undefined,
+    admissionFee: row.admission_fee as number | undefined,
+    admissionFeeCurrency: row.admission_fee_currency as string | undefined,
     avgDurationMin: row.avg_duration_min as number,
   };
 }

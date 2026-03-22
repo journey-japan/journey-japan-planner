@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { Spot } from "@/types";
+import { formatAdmissionFee } from "@/lib/format";
 
 const CATEGORY_EMOJIS: Record<string, string> = {
   shrine: "⛩️",
@@ -105,9 +106,9 @@ export default function DraggableRecommendedCard({
           </>
         )}
 
-        {spot.admissionFee && (
+        {formatAdmissionFee(spot.admissionFee, spot.admissionFeeCurrency) && (
           <span className="absolute top-2 right-2 text-[10px] font-medium text-gray-500 bg-white/90 px-1.5 py-0.5 rounded">
-            {spot.admissionFee}
+            {formatAdmissionFee(spot.admissionFee, spot.admissionFeeCurrency)}
           </span>
         )}
         {!isAdded && (

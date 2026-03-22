@@ -13,7 +13,8 @@ export interface Spot {
   address: string;
   photoUrls: string[];
   openingHours?: Record<string, string>;
-  admissionFee?: string;
+  admissionFee?: number;
+  admissionFeeCurrency?: string;
   avgDurationMin: number;
 }
 

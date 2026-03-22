@@ -14,7 +14,7 @@ export const SAMPLE_SPOTS: Spot[] = [
     lng: 139.6993,
     address: "1-1 Yoyogikamizonocho, Shibuya City, Tokyo",
     photoUrls: [],
-    admissionFee: "Free",
+    admissionFee: 0, admissionFeeCurrency: "JPY",
     avgDurationMin: 60,
   },
   {
@@ -54,7 +54,7 @@ export const SAMPLE_SPOTS: Spot[] = [
     lng: 139.7022,
     address: "Shibuya Scramble Square, 2-24-12 Shibuya, Tokyo",
     photoUrls: [],
-    admissionFee: "¥2,000",
+    admissionFee: 2000, admissionFeeCurrency: "JPY",
     avgDurationMin: 60,
   },
   {
@@ -81,7 +81,7 @@ export const SAMPLE_SPOTS: Spot[] = [
     lng: 139.7380,
     address: "Azabudai Hills, Minato City, Tokyo",
     photoUrls: [],
-    admissionFee: "¥3,800",
+    admissionFee: 3800, admissionFeeCurrency: "JPY",
     avgDurationMin: 120,
   },
   {
@@ -95,7 +95,7 @@ export const SAMPLE_SPOTS: Spot[] = [
     lng: 139.7967,
     address: "2-3-1 Asakusa, Taito City, Tokyo",
     photoUrls: [],
-    admissionFee: "Free",
+    admissionFee: 0, admissionFeeCurrency: "JPY",
     avgDurationMin: 60,
   },
   {
@@ -135,7 +135,7 @@ export const SAMPLE_SPOTS: Spot[] = [
     lng: 139.8107,
     address: "1-1-2 Oshiage, Sumida City, Tokyo",
     photoUrls: [],
-    admissionFee: "¥2,100",
+    admissionFee: 2100, admissionFeeCurrency: "JPY",
     avgDurationMin: 60,
   },
   {
@@ -149,7 +149,7 @@ export const SAMPLE_SPOTS: Spot[] = [
     lng: 139.7100,
     address: "11 Naitocho, Shinjuku City, Tokyo",
     photoUrls: [],
-    admissionFee: "¥500",
+    admissionFee: 500, admissionFeeCurrency: "JPY",
     avgDurationMin: 90,
   },
   {
@@ -163,7 +163,7 @@ export const SAMPLE_SPOTS: Spot[] = [
     lng: 139.7528,
     address: "1-1 Chiyoda, Chiyoda City, Tokyo",
     photoUrls: [],
-    admissionFee: "Free",
+    admissionFee: 0, admissionFeeCurrency: "JPY",
     avgDurationMin: 60,
   },
 ];
