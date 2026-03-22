@@ -166,9 +166,12 @@ export async function publishItinerary({
 
     const dayId = dayData.id as string;
 
-    // 3. Insert items for this day
-    if (day.items.length > 0) {
-      const itemRows = day.items.map((item, idx) => ({
+    // 3. Insert items for this day (skip sample data spots with non-UUID IDs)
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const dbItems = day.items.filter((item) => uuidRegex.test(item.spotId));
+
+    if (dbItems.length > 0) {
+      const itemRows = dbItems.map((item, idx) => ({
         day_id: dayId,
         spot_id: item.spotId,
         order_index: idx,
