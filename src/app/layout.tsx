@@ -9,11 +9,11 @@ const GA_ID = "G-5HXRQZT8LF";
 const SITE_URL = "https://plan.journeyjpn.com";
 const SITE_NAME = "Journey Japan";
 const SITE_DESCRIPTION =
-  "Plan your perfect Japan trip with curated itineraries from travel professionals. Drag-and-drop editor, interactive maps, and 50+ must-visit spots in Tokyo, Kyoto, Osaka & more.";
+  "Plan your perfect Japan trip with itineraries curated by professional travel agents. Customize your schedule with an intuitive drag-and-drop editor, explore 50+ must-visit spots in Tokyo, Kyoto & Osaka, and book tours directly from your plan — all for free.";
 
 export const metadata: Metadata = {
   title: {
-    default: "Journey Japan — Plan Your Perfect Japan Trip",
+    default: "Journey Japan — Free Japan Trip Planner by Professional Travel Agents",
     template: "%s | Journey Japan",
   },
   description: SITE_DESCRIPTION,
@@ -22,6 +22,7 @@ export const metadata: Metadata = {
     "Japan itinerary",
     "Tokyo itinerary",
     "Kyoto itinerary",
+    "Osaka itinerary",
     "Japan travel",
     "Japan vacation planner",
     "drag and drop trip planner",
@@ -29,6 +30,14 @@ export const metadata: Metadata = {
     "best things to do in Tokyo",
     "Japan trip builder",
     "free Japan itinerary planner",
+    "customizable Japan itinerary",
+    "professional travel agent Japan itinerary",
+    "book Japan tours online",
+    "Japan trip planning tool",
+    "interactive Japan travel planner",
+    "Japan sightseeing planner",
+    "plan trip to Japan",
+    "Japan travel booking",
   ],
   authors: [{ name: "Journey Japan" }],
   creator: "Journey Japan",
@@ -41,20 +50,20 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: SITE_URL,
     siteName: SITE_NAME,
-    title: "Journey Japan — Plan Your Perfect Japan Trip",
+    title: "Journey Japan — Drag & Drop Japan Trip Planner by Travel Pros",
     description: SITE_DESCRIPTION,
     images: [
       {
         url: "/hero-bg_r1.jpg",
         width: 1200,
         height: 630,
-        alt: "Journey Japan — Japan Trip Planner",
+        alt: "Journey Japan — customizable Japan trip planner with drag-and-drop editor and professional itineraries",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Journey Japan — Plan Your Perfect Japan Trip",
+    title: "Journey Japan — Drag & Drop Japan Trip Planner by Travel Pros",
     description: SITE_DESCRIPTION,
     images: ["/hero-bg_r1.jpg"],
   },
