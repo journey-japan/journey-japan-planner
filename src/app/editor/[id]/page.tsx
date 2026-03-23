@@ -30,6 +30,7 @@ import SortableSpotCard from "@/components/itinerary/SortableSpotCard";
 import SpotSearchPanel from "@/components/itinerary/SpotSearchPanel";
 import RecommendedSpots from "@/components/itinerary/RecommendedSpots";
 import GoogleMap from "@/components/map/GoogleMap";
+import SpotDetailModal from "@/components/itinerary/SpotDetailModal";
 import LoginModal from "@/components/auth/LoginModal";
 import { useAuth } from "@/lib/auth-context";
 
@@ -95,6 +96,7 @@ export default function EditorPage() {
   const [showShareToast, setShowShareToast] = useState(false);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [loadingItinerary, setLoadingItinerary] = useState(isExistingItinerary);
+  const [detailSpot, setDetailSpot] = useState<Spot | null>(null);
 
   // Load existing itinerary from DB when editing
   useEffect(() => {
@@ -513,6 +515,7 @@ export default function EditorPage() {
                         item={item}
                         index={index}
                         onRemove={handleRemoveSpot}
+                        onSpotClick={setDetailSpot}
                       />
                     ))}
                   </SortableContext>
@@ -591,6 +594,11 @@ export default function EditorPage() {
           </div>
         )}
       </DragOverlay>
+
+      <SpotDetailModal
+        spot={detailSpot}
+        onClose={() => setDetailSpot(null)}
+      />
 
       <LoginModal
         isOpen={loginModalOpen}

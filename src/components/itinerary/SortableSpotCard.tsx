@@ -3,7 +3,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import Image from "next/image";
-import { ItineraryItem } from "@/types";
+import { ItineraryItem, Spot } from "@/types";
 
 const TRANSPORT_ICONS: Record<string, string> = {
   walk: "🚶",
@@ -17,9 +17,10 @@ interface SortableSpotCardProps {
   item: ItineraryItem;
   index: number;
   onRemove?: (itemId: string) => void;
+  onSpotClick?: (spot: Spot) => void;
 }
 
-export default function SortableSpotCard({ item, index, onRemove }: SortableSpotCardProps) {
+export default function SortableSpotCard({ item, index, onRemove, onSpotClick }: SortableSpotCardProps) {
   const {
     attributes,
     listeners,
@@ -52,8 +53,15 @@ export default function SortableSpotCard({ item, index, onRemove }: SortableSpot
           ⠿
         </div>
 
-        {/* Thumbnail + Number badge */}
-        <div className="relative w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
+        {/* Thumbnail + Number badge (click to view details) */}
+        <div
+          className="relative w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 cursor-pointer ring-0 hover:ring-2 hover:ring-accent/40 transition-all"
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            onSpotClick?.(item.spot);
+          }}
+        >
           {item.spot.photoUrls?.[0] ? (
             <Image
               src={item.spot.photoUrls[0]}
@@ -74,7 +82,16 @@ export default function SortableSpotCard({ item, index, onRemove }: SortableSpot
 
         {/* Spot info */}
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-semibold leading-tight">{item.spot.nameEn}</div>
+          <div
+            className="text-sm font-semibold leading-tight cursor-pointer hover:text-accent transition-colors"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              onSpotClick?.(item.spot);
+            }}
+          >
+            {item.spot.nameEn}
+          </div>
           <div className="text-xs text-gray-400 mt-0.5">
             {item.spot.category.charAt(0).toUpperCase() + item.spot.category.slice(1)} ·{" "}
             {item.spot.area.charAt(0).toUpperCase() + item.spot.area.slice(1)}
