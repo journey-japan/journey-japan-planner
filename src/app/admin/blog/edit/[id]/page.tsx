@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import Header from "@/components/layout/Header";
@@ -20,12 +20,9 @@ function generateSlug(title: string): string {
     .slice(0, 80);
 }
 
-export default function BlogEditorPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = use(params);
+export default function BlogEditorPage() {
+  const params = useParams();
+  const id = params.id as string;
   const isNew = id === "new";
   const { user, profile, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -45,11 +42,14 @@ export default function BlogEditorPage({
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && (!user || !profile?.is_pro)) {
+    if (authLoading) return;
+
+    if (!user || !profile?.is_pro) {
       router.push("/");
       return;
     }
-    if (!isNew && user && profile?.is_pro) {
+
+    if (!isNew) {
       fetchPost();
     }
   }, [user, profile, authLoading, isNew, router]);
