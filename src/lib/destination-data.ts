@@ -13,7 +13,7 @@ export interface DestinationInfo {
   metaDescription: string;
   keywords: string[];
   intro: string;
-  highlights: { title: string; description: string; icon: string }[];
+  highlights: { title: string; description: string; icon: string; imageUrl: string }[];
   bestFor: string[];
   suggestedDays: string;
   bestSeason: string;
@@ -52,24 +52,28 @@ export const DESTINATION_DATA: Record<string, DestinationInfo> = {
         description:
           "Walk the famous Shibuya Crossing, explore Takeshita Street's quirky shops, and visit the peaceful Meiji Shrine — all within walking distance.",
         icon: "🏙️",
+        imageUrl: `${SUPABASE_STORAGE}/tokyo-shibuya.jpg`,
       },
       {
         title: "Asakusa & Senso-ji",
         description:
           "Experience old-world Tokyo at Senso-ji Temple, browse Nakamise-dori for traditional souvenirs, and enjoy views of Tokyo Skytree.",
         icon: "⛩️",
+        imageUrl: `${SUPABASE_STORAGE}/tokyo-asakusa.jpg`,
       },
       {
         title: "Shinjuku & Kabukicho",
         description:
           "Discover the vibrant nightlife district, enjoy panoramic views from the Tokyo Metropolitan Government Building, and explore Golden Gai's tiny bars.",
         icon: "🌃",
+        imageUrl: `${SUPABASE_STORAGE}/tokyo-shinjuku.jpg`,
       },
       {
         title: "Akihabara & Otaku Culture",
         description:
           "Dive into anime, manga, and electronics culture at the world's largest otaku district. Visit multi-story arcades and themed cafes.",
         icon: "🎮",
+        imageUrl: `${SUPABASE_STORAGE}/tokyo-akihabara.jpg`,
       },
     ],
     bestFor: ["First-time visitors", "Culture & history lovers", "Food enthusiasts", "Shopping & nightlife"],
@@ -108,24 +112,28 @@ export const DESTINATION_DATA: Record<string, DestinationInfo> = {
         description:
           "Walk through thousands of vibrant orange torii gates winding up Mount Inari. Best visited early morning to avoid crowds.",
         icon: "⛩️",
+        imageUrl: `${SUPABASE_STORAGE}/kyoto-fushimi.jpg`,
       },
       {
         title: "Arashiyama Bamboo Grove",
         description:
           "Stroll through towering bamboo stalks, visit the nearby Tenryu-ji Temple, and cross the scenic Togetsukyo Bridge.",
         icon: "🎋",
+        imageUrl: `${SUPABASE_STORAGE}/kyoto-arashiyama.jpg`,
       },
       {
         title: "Gion & Geisha District",
         description:
           "Explore the historic geisha district with traditional wooden machiya houses, tea houses, and the chance to spot a geiko or maiko.",
         icon: "👘",
+        imageUrl: `${SUPABASE_STORAGE}/kyoto-gion.jpg`,
       },
       {
         title: "Kinkaku-ji & Ryoan-ji",
         description:
           "Visit the stunning Golden Pavilion reflected in its mirror pond, and contemplate the famous rock garden at Ryoan-ji nearby.",
         icon: "🏯",
+        imageUrl: `${SUPABASE_STORAGE}/kyoto-kinkakuji.jpg`,
       },
     ],
     bestFor: ["Temple & shrine lovers", "History enthusiasts", "Photographers", "Traditional culture seekers"],
@@ -164,24 +172,28 @@ export const DESTINATION_DATA: Record<string, DestinationInfo> = {
         description:
           "Experience Osaka's most iconic street food district. Try takoyaki, okonomiyaki, and kushikatsu while surrounded by neon lights and canal views.",
         icon: "🍢",
+        imageUrl: `${SUPABASE_STORAGE}/osaka-dotonbori.jpg`,
       },
       {
         title: "Osaka Castle",
         description:
           "Explore one of Japan's most famous landmarks surrounded by beautiful gardens. The castle museum offers panoramic city views from the top floor.",
         icon: "🏯",
+        imageUrl: `${SUPABASE_STORAGE}/osaka-castle.jpg`,
       },
       {
         title: "Shinsekai & Tsutenkaku",
         description:
           "Visit the retro entertainment district with its iconic tower, kushikatsu restaurants, and nostalgic atmosphere reminiscent of 1960s Japan.",
         icon: "🗼",
+        imageUrl: `${SUPABASE_STORAGE}/osaka-shinsekai.jpg`,
       },
       {
         title: "Kuromon Market",
         description:
           "Browse Osaka's 'Kitchen' — a 600-meter covered market with fresh seafood, street food stalls, and local produce since 1902.",
         icon: "🐟",
+        imageUrl: `${SUPABASE_STORAGE}/osaka-kuromon.jpg`,
       },
     ],
     bestFor: ["Food lovers", "Nightlife seekers", "Family travelers", "Budget travelers"],
@@ -218,24 +230,28 @@ export const DESTINATION_DATA: Record<string, DestinationInfo> = {
         description:
           "Explore a world-class sculpture garden set against the backdrop of the Hakone mountains, featuring works by Picasso, Moore, and more.",
         icon: "🎨",
+        imageUrl: `${SUPABASE_STORAGE}/hakone-openair.jpg`,
       },
       {
         title: "Lake Ashi & Pirate Ships",
         description:
           "Cruise across the scenic lake on a replica pirate ship with stunning views of Mount Fuji on clear days.",
         icon: "⛵",
+        imageUrl: `${SUPABASE_STORAGE}/hakone-ashi.jpg`,
       },
       {
         title: "Owakudani Valley",
         description:
           "Experience the volcanic activity of Hakone at this steaming valley. Try the famous black eggs said to add 7 years to your life.",
         icon: "🌋",
+        imageUrl: `${SUPABASE_STORAGE}/hakone-owakudani.jpg`,
       },
       {
         title: "Onsen Hot Springs",
         description:
           "Soak in natural hot spring baths at one of Hakone's many ryokan inns. Many offer private outdoor baths with mountain views.",
         icon: "♨️",
+        imageUrl: `${SUPABASE_STORAGE}/hakone-onsen.jpg`,
       },
     ],
     bestFor: ["Onsen lovers", "Nature seekers", "Day trippers from Tokyo", "Couples"],
@@ -272,24 +288,28 @@ export const DESTINATION_DATA: Record<string, DestinationInfo> = {
         description:
           "Meet over 1,000 friendly deer roaming freely in this expansive park. Buy deer crackers (shika senbei) to feed them — they even bow for treats!",
         icon: "🦌",
+        imageUrl: `${SUPABASE_STORAGE}/nara-deer.jpg`,
       },
       {
         title: "Todai-ji Temple",
         description:
           "Stand in awe before the Great Buddha (Daibutsu), housed in the world's largest wooden building. A UNESCO World Heritage Site.",
         icon: "🛕",
+        imageUrl: `${SUPABASE_STORAGE}/nara-todaiji.jpg`,
       },
       {
         title: "Kasuga Taisha",
         description:
           "Walk through hundreds of stone and bronze lanterns lining the approach to this atmospheric Shinto shrine in the forest.",
         icon: "🏮",
+        imageUrl: `${SUPABASE_STORAGE}/nara-kasuga.jpg`,
       },
       {
         title: "Naramachi District",
         description:
           "Explore the charming old merchant quarter with traditional machiya townhouses, craft shops, cafes, and small museums.",
         icon: "🏘️",
+        imageUrl: `${SUPABASE_STORAGE}/nara-naramachi.jpg`,
       },
     ],
     bestFor: ["Animal lovers", "History buffs", "Day trippers", "Families with kids"],
@@ -326,24 +346,28 @@ export const DESTINATION_DATA: Record<string, DestinationInfo> = {
         description:
           "Pay respects at the A-Bomb Dome, explore the museum, and reflect at the Cenotaph and Children's Peace Monument.",
         icon: "🕊️",
+        imageUrl: `${SUPABASE_STORAGE}/hiroshima-peace.jpg`,
       },
       {
         title: "Miyajima Island",
         description:
           "Take a short ferry to see the iconic floating torii gate of Itsukushima Shrine, hike Mount Misen, and try momiji manju.",
         icon: "⛩️",
+        imageUrl: `${SUPABASE_STORAGE}/hiroshima-miyajima.jpg`,
       },
       {
         title: "Hiroshima-style Okonomiyaki",
         description:
           "Try the local layered version of this savory pancake at Okonomimura, a multi-story building packed with okonomiyaki stalls.",
         icon: "🥞",
+        imageUrl: `${SUPABASE_STORAGE}/hiroshima-okonomiyaki.jpg`,
       },
       {
         title: "Shukkeien Garden",
         description:
           "Stroll through this beautifully landscaped garden dating back to 1620, featuring miniature valleys, mountains, and tea houses.",
         icon: "🌿",
+        imageUrl: `${SUPABASE_STORAGE}/hiroshima-shukkeien.jpg`,
       },
     ],
     bestFor: ["History & peace seekers", "Island explorers", "Food lovers", "Cultural travelers"],
@@ -380,24 +404,28 @@ export const DESTINATION_DATA: Record<string, DestinationInfo> = {
         description:
           "Marvel at Japan's most elaborately decorated shrine, the mausoleum of Tokugawa Ieyasu. Home to the famous 'see no evil' monkeys.",
         icon: "🙈",
+        imageUrl: `${SUPABASE_STORAGE}/nikko-toshogu.jpg`,
       },
       {
         title: "Kegon Falls",
         description:
           "Witness one of Japan's most famous waterfalls plunging 97 meters into the gorge below. Take the elevator for a dramatic close-up view.",
         icon: "💧",
+        imageUrl: `${SUPABASE_STORAGE}/nikko-kegon.jpg`,
       },
       {
         title: "Lake Chuzenji",
         description:
           "Enjoy the peaceful mountain lake formed by a volcanic eruption. Rent a boat or walk the scenic shoreline trail.",
         icon: "🏞️",
+        imageUrl: `${SUPABASE_STORAGE}/nikko-chuzenji.jpg`,
       },
       {
         title: "Shinkyo Bridge",
         description:
           "Cross the sacred vermillion bridge arching over the Daiya River — one of Japan's finest bridges and the gateway to Nikko's shrines.",
         icon: "🌉",
+        imageUrl: `${SUPABASE_STORAGE}/nikko-shinkyo.jpg`,
       },
     ],
     bestFor: ["Nature lovers", "Architecture enthusiasts", "Day trippers from Tokyo", "Photographers"],
@@ -434,24 +462,28 @@ export const DESTINATION_DATA: Record<string, DestinationInfo> = {
         description:
           "Stand before the iconic 13-meter bronze Buddha statue that has been sitting in the open air since a tsunami destroyed its hall in 1498.",
         icon: "🗿",
+        imageUrl: `${SUPABASE_STORAGE}/kamakura-buddha.jpg`,
       },
       {
         title: "Hasedera Temple",
         description:
           "Explore the temple grounds with stunning ocean views, a cave of tiny Buddha statues, and beautiful hydrangea gardens in June.",
         icon: "🌺",
+        imageUrl: `${SUPABASE_STORAGE}/kamakura-hasedera.jpg`,
       },
       {
         title: "Tsurugaoka Hachimangu",
         description:
           "Visit Kamakura's most important shrine, walk the tree-lined approach from the beach, and enjoy seasonal festivals.",
         icon: "⛩️",
+        imageUrl: `${SUPABASE_STORAGE}/kamakura-hachimangu.jpg`,
       },
       {
         title: "Enoshima Island",
         description:
           "Cross the bridge to this small island for shrines, sea caves, ocean views, and fresh shirasu (whitebait) dishes.",
         icon: "🏝️",
+        imageUrl: `${SUPABASE_STORAGE}/kamakura-enoshima.jpg`,
       },
     ],
     bestFor: ["Beach lovers", "History buffs", "Hikers", "Day trippers from Tokyo"],
@@ -488,24 +520,28 @@ export const DESTINATION_DATA: Record<string, DestinationInfo> = {
         description:
           "Explore the largest Chinatown in Japan with over 500 shops and restaurants. Try nikuman (steamed buns) and authentic Chinese cuisine.",
         icon: "🥟",
+        imageUrl: `${SUPABASE_STORAGE}/yokohama-chinatown.jpg`,
       },
       {
         title: "Minato Mirai Waterfront",
         description:
           "Walk along the stunning harbor with views of the Landmark Tower, Cosmo World ferris wheel, and the Red Brick Warehouse.",
         icon: "🎡",
+        imageUrl: `${SUPABASE_STORAGE}/yokohama-minatomirai.jpg`,
       },
       {
         title: "Cup Noodles Museum",
         description:
           "Discover the history of instant noodles and create your own custom Cup Noodles at this interactive and fun museum.",
         icon: "🍜",
+        imageUrl: `${SUPABASE_STORAGE}/yokohama-cupnoodles.jpg`,
       },
       {
         title: "Sankeien Garden",
         description:
           "Wander through a spacious Japanese garden featuring historic buildings relocated from Kyoto, Kamakura, and other parts of Japan.",
         icon: "🌿",
+        imageUrl: `${SUPABASE_STORAGE}/yokohama-sankeien.jpg`,
       },
     ],
     bestFor: ["Food lovers", "Families", "Architecture fans", "Easy side trip from Tokyo"],
@@ -542,24 +578,28 @@ export const DESTINATION_DATA: Record<string, DestinationInfo> = {
         description:
           "Experience Fukuoka's iconic open-air food stalls along the Naka River. Sit shoulder-to-shoulder with locals enjoying ramen, yakitori, and gyoza.",
         icon: "🏮",
+        imageUrl: `${SUPABASE_STORAGE}/fukuoka-yatai.jpg`,
       },
       {
         title: "Hakata Ramen",
         description:
           "Taste the city's signature creamy tonkotsu (pork bone) ramen at famous shops like Ichiran, Ippudo, or Shin Shin.",
         icon: "🍜",
+        imageUrl: `${SUPABASE_STORAGE}/fukuoka-ramen.jpg`,
       },
       {
         title: "Dazaifu Tenmangu",
         description:
           "Visit the beautiful shrine dedicated to the god of learning, famous for its plum blossoms and the unique Starbucks designed by Kengo Kuma.",
         icon: "⛩️",
+        imageUrl: `${SUPABASE_STORAGE}/fukuoka-dazaifu.jpg`,
       },
       {
         title: "Ohori Park",
         description:
           "Relax at this beautiful park built around a large pond, perfect for jogging, pedal boating, or visiting the adjacent art museum.",
         icon: "🌳",
+        imageUrl: `${SUPABASE_STORAGE}/fukuoka-ohori.jpg`,
       },
     ],
     bestFor: ["Ramen lovers", "Street food fans", "Off-the-beaten-path travelers", "Kyushu explorers"],

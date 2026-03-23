@@ -205,13 +205,18 @@ export default async function DestinationPage({
               {dest.highlights.map((h) => (
                 <div
                   key={h.title}
-                  className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-sm transition-shadow"
+                  className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
                 >
-                  <div className="text-3xl mb-3">{h.icon}</div>
-                  <h3 className="text-base font-semibold mb-2">{h.title}</h3>
-                  <p className="text-sm text-gray-500 leading-relaxed">
-                    {h.description}
-                  </p>
+                  <div
+                    className="h-40 bg-gray-200 bg-cover bg-center"
+                    style={{ backgroundImage: `url(${h.imageUrl})` }}
+                  />
+                  <div className="p-5">
+                    <h3 className="text-base font-semibold mb-2">{h.title}</h3>
+                    <p className="text-sm text-gray-500 leading-relaxed">
+                      {h.description}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
