@@ -2,6 +2,7 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import Image from "next/image";
 import { ItineraryItem } from "@/types";
 
 const TRANSPORT_ICONS: Record<string, string> = {
@@ -51,15 +52,30 @@ export default function SortableSpotCard({ item, index, onRemove }: SortableSpot
           ⠿
         </div>
 
-        {/* Number badge */}
-        <div className="w-6 h-6 rounded-full bg-accent text-white flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
-          {index + 1}
+        {/* Thumbnail + Number badge */}
+        <div className="relative w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
+          {item.spot.photoUrls?.[0] ? (
+            <Image
+              src={item.spot.photoUrls[0]}
+              alt={item.spot.nameEn}
+              fill
+              className="object-cover"
+              sizes="56px"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-300 text-lg">
+              📍
+            </div>
+          )}
+          <div className="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-accent text-white flex items-center justify-center text-[10px] font-bold shadow-sm">
+            {index + 1}
+          </div>
         </div>
 
         {/* Spot info */}
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-semibold">{item.spot.nameEn}</div>
-          <div className="text-xs text-gray-400">
+          <div className="text-sm font-semibold leading-tight">{item.spot.nameEn}</div>
+          <div className="text-xs text-gray-400 mt-0.5">
             {item.spot.category.charAt(0).toUpperCase() + item.spot.category.slice(1)} ·{" "}
             {item.spot.area.charAt(0).toUpperCase() + item.spot.area.slice(1)}
           </div>
