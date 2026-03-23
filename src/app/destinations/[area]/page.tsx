@@ -120,13 +120,21 @@ export default async function DestinationPage({
       <Header />
       <main>
         {/* ===== HERO ===== */}
-        <section className="bg-gradient-to-br from-gray-900 to-gray-800 py-20 px-6 text-center">
-          <div className="max-w-3xl mx-auto">
+        <section className="relative bg-gray-900 py-24 px-6 text-center overflow-hidden">
+          {/* Background image */}
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${dest.heroImageUrl})` }}
+          />
+          {/* Dark overlay for text readability */}
+          <div className="absolute inset-0 bg-black/50" />
+
+          <div className="relative max-w-3xl mx-auto">
             <div className="text-5xl mb-4">{dest.emoji}</div>
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
               {dest.heroTitle}
             </h1>
-            <p className="text-lg text-gray-300 max-w-2xl mx-auto mb-8">
+            <p className="text-lg text-gray-200 max-w-2xl mx-auto mb-8">
               {dest.heroSubtitle}
             </p>
             <div className="flex gap-3 justify-center">

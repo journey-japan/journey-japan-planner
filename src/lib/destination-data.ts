@@ -1,9 +1,12 @@
 import type { Area } from "@/types";
 
+const SUPABASE_STORAGE = "https://vupqtpngeogrmcyrtnam.supabase.co/storage/v1/object/public/destination-images";
+
 export interface DestinationInfo {
   area: Area;
   label: string;
   emoji: string;
+  heroImageUrl: string;
   heroTitle: string;
   heroSubtitle: string;
   metaTitle: string;
@@ -22,6 +25,7 @@ export const DESTINATION_DATA: Record<string, DestinationInfo> = {
     area: "tokyo",
     label: "Tokyo",
     emoji: "🗼",
+    heroImageUrl: `${SUPABASE_STORAGE}/tokyo.jpg`,
     heroTitle: "Plan Your Perfect Tokyo Itinerary",
     heroSubtitle:
       "From the neon lights of Shinjuku to the serene Meiji Shrine — explore Tokyo with itineraries designed by professional travel agents.",
@@ -77,6 +81,7 @@ export const DESTINATION_DATA: Record<string, DestinationInfo> = {
     area: "kyoto",
     label: "Kyoto",
     emoji: "⛩️",
+    heroImageUrl: `${SUPABASE_STORAGE}/kyoto.jpg`,
     heroTitle: "Plan Your Perfect Kyoto Itinerary",
     heroSubtitle:
       "Discover the soul of Japan — ancient temples, bamboo forests, and traditional geisha districts, all planned by travel experts.",
@@ -132,6 +137,7 @@ export const DESTINATION_DATA: Record<string, DestinationInfo> = {
     area: "osaka",
     label: "Osaka",
     emoji: "🏯",
+    heroImageUrl: `${SUPABASE_STORAGE}/osaka.jpg`,
     heroTitle: "Plan Your Perfect Osaka Itinerary",
     heroSubtitle:
       "Japan's kitchen awaits — street food, vibrant nightlife, and Osaka Castle, all curated by travel professionals.",
@@ -187,6 +193,7 @@ export const DESTINATION_DATA: Record<string, DestinationInfo> = {
     area: "hakone",
     label: "Hakone",
     emoji: "♨️",
+    heroImageUrl: `${SUPABASE_STORAGE}/hakone.jpg`,
     heroTitle: "Plan Your Perfect Hakone Itinerary",
     heroSubtitle:
       "Hot springs, Mount Fuji views, and the Hakone Loop — a perfect day trip or weekend escape from Tokyo.",
@@ -240,6 +247,7 @@ export const DESTINATION_DATA: Record<string, DestinationInfo> = {
     area: "nara",
     label: "Nara",
     emoji: "🦌",
+    heroImageUrl: `${SUPABASE_STORAGE}/nara.jpg`,
     heroTitle: "Plan Your Perfect Nara Itinerary",
     heroSubtitle:
       "Ancient temples, friendly deer, and Japan's oldest capital — a must-visit day trip from Kyoto or Osaka.",
@@ -293,6 +301,7 @@ export const DESTINATION_DATA: Record<string, DestinationInfo> = {
     area: "hiroshima",
     label: "Hiroshima",
     emoji: "🕊️",
+    heroImageUrl: `${SUPABASE_STORAGE}/hiroshima.jpg`,
     heroTitle: "Plan Your Perfect Hiroshima Itinerary",
     heroSubtitle:
       "A city of peace and resilience — visit the Peace Memorial, Itsukushima Shrine on Miyajima Island, and savor Hiroshima-style okonomiyaki.",
@@ -346,6 +355,7 @@ export const DESTINATION_DATA: Record<string, DestinationInfo> = {
     area: "nikko",
     label: "Nikko",
     emoji: "🏔️",
+    heroImageUrl: `${SUPABASE_STORAGE}/nikko.jpg`,
     heroTitle: "Plan Your Perfect Nikko Itinerary",
     heroSubtitle:
       "Ornate shrines, misty waterfalls, and mountain beauty — an unforgettable day trip from Tokyo.",
@@ -399,6 +409,7 @@ export const DESTINATION_DATA: Record<string, DestinationInfo> = {
     area: "kamakura",
     label: "Kamakura",
     emoji: "🌸",
+    heroImageUrl: `${SUPABASE_STORAGE}/kamakura.jpg`,
     heroTitle: "Plan Your Perfect Kamakura Itinerary",
     heroSubtitle:
       "The Great Buddha, coastal temples, and seaside vibes — a charming day trip just south of Tokyo.",
@@ -452,6 +463,7 @@ export const DESTINATION_DATA: Record<string, DestinationInfo> = {
     area: "yokohama",
     label: "Yokohama",
     emoji: "🚢",
+    heroImageUrl: `${SUPABASE_STORAGE}/yokohama.jpg`,
     heroTitle: "Plan Your Perfect Yokohama Itinerary",
     heroSubtitle:
       "Japan's vibrant port city — Chinatown, waterfront skyline, and ramen museum, right next to Tokyo.",
@@ -505,6 +517,7 @@ export const DESTINATION_DATA: Record<string, DestinationInfo> = {
     area: "fukuoka",
     label: "Fukuoka",
     emoji: "🍜",
+    heroImageUrl: `${SUPABASE_STORAGE}/fukuoka.jpg`,
     heroTitle: "Plan Your Perfect Fukuoka Itinerary",
     heroSubtitle:
       "Japan's ramen capital — yatai street stalls, historic temples, and a gateway to Kyushu, planned by experts.",
