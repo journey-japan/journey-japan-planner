@@ -22,10 +22,10 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { ItineraryItem, ItineraryDay, Spot } from "@/types";
+import { useParams, useRouter } from "next/navigation";
+import { ItineraryItem, ItineraryDay, Spot, Area, AREAS } from "@/types";
 import { SAMPLE_ITINERARIES, SAMPLE_SPOTS } from "@/lib/sample-data";
-import { getSpots, publishItinerary } from "@/lib/db";
+import { getSpots, getItineraryWithDetails, publishItinerary, updateItinerary } from "@/lib/db";
 import SortableSpotCard from "@/components/itinerary/SortableSpotCard";
 import SpotSearchPanel from "@/components/itinerary/SpotSearchPanel";
 import RecommendedSpots from "@/components/itinerary/RecommendedSpots";
@@ -54,32 +54,82 @@ function ItineraryDropZone({ children, isOver }: { children: React.ReactNode; is
   );
 }
 
+// Default empty day for new itineraries
+function createEmptyDay(dayNumber: number): ItineraryDay {
+  return {
+    id: `new-day-${dayNumber}-${Date.now()}`,
+    itineraryId: "",
+    dayNumber,
+    items: [],
+  };
+}
+
 export default function EditorPage() {
   const { user } = useAuth();
   const router = useRouter();
-  const itinerary = SAMPLE_ITINERARIES[0];
+  const params = useParams();
+  const urlId = params.id as string; // "new" or existing itinerary UUID
+
+  const isNewItinerary = urlId === "new";
+  const isExistingItinerary = !isNewItinerary;
+
+  // Core state
+  const [title, setTitle] = useState(isNewItinerary ? "My Japan Trip" : "");
+  const [description, setDescription] = useState(isNewItinerary ? "" : "");
+  const [area, setArea] = useState<Area>("tokyo");
+  const [tags, setTags] = useState<string[]>([]);
   const [days, setDays] = useState<ItineraryDay[]>(
-    itinerary.days.filter((d) => d.items.length > 0)
+    isNewItinerary ? [createEmptyDay(1)] : []
   );
+  const [existingItineraryId, setExistingItineraryId] = useState<string | null>(
+    isExistingItinerary ? urlId : null
+  );
+
+  // UI state
   const [activeDay, setActiveDay] = useState(0);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [title, setTitle] = useState(itinerary.title);
   const [draggingSpot, setDraggingSpot] = useState<Spot | null>(null);
   const [isOverItinerary, setIsOverItinerary] = useState(false);
   const [spots, setSpots] = useState<Spot[]>(SAMPLE_SPOTS);
   const [isPublishing, setIsPublishing] = useState(false);
-  const [publishedId, setPublishedId] = useState<string | null>(null);
   const [showShareToast, setShowShareToast] = useState(false);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const [loadingItinerary, setLoadingItinerary] = useState(isExistingItinerary);
+
+  // Load existing itinerary from DB when editing
+  useEffect(() => {
+    if (!isExistingItinerary) return;
+
+    setLoadingItinerary(true);
+    getItineraryWithDetails(urlId).then((itinerary) => {
+      if (itinerary) {
+        setTitle(itinerary.title);
+        setDescription(itinerary.description);
+        setArea(itinerary.area);
+        setTags(itinerary.tags);
+        setExistingItineraryId(itinerary.id);
+
+        if (itinerary.days.length > 0) {
+          setDays(itinerary.days);
+        } else {
+          setDays([createEmptyDay(1)]);
+        }
+      } else {
+        // Itinerary not found — redirect to new editor
+        router.replace("/editor/new");
+      }
+      setLoadingItinerary(false);
+    });
+  }, [urlId, isExistingItinerary, router]);
 
   // Fetch spots from DB on mount, fall back to sample data
   useEffect(() => {
-    getSpots("tokyo").then((dbSpots) => {
+    getSpots(area).then((dbSpots) => {
       if (dbSpots.length > 0) {
         setSpots(dbSpots);
       }
     });
-  }, []);
+  }, [area]);
 
   const currentDay = days[activeDay];
   const items = currentDay?.items || [];
@@ -107,7 +157,6 @@ export default function EditorPage() {
       return;
     }
     const overId = String(event.over.id);
-    // Over the drop zone or over an existing itinerary item
     const isOverItin =
       overId === "itinerary-drop-zone" ||
       items.some((i) => i.id === overId);
@@ -131,7 +180,6 @@ export default function EditorPage() {
         const spot = active.data?.current?.spot as Spot | undefined;
         if (!spot) return;
 
-        // Determine insert position
         const overItemIndex = items.findIndex((i) => i.id === overId);
         const insertIndex = overItemIndex >= 0 ? overItemIndex + 1 : items.length;
 
@@ -228,7 +276,15 @@ export default function EditorPage() {
     });
   }, [activeDay]);
 
-  // Publish itinerary
+  // Add a new day
+  const handleAddDay = useCallback(() => {
+    setDays((prev) => {
+      const newDayNumber = prev.length + 1;
+      return [...prev, createEmptyDay(newDayNumber)];
+    });
+  }, []);
+
+  // Publish or Update itinerary
   const handlePublish = useCallback(async () => {
     if (!user) {
       setLoginModalOpen(true);
@@ -242,14 +298,31 @@ export default function EditorPage() {
     }
 
     setIsPublishing(true);
-    const result = await publishItinerary({
-      userId: user.id,
-      title,
-      description: itinerary.description,
-      area: itinerary.area,
-      days,
-      tags: itinerary.tags,
-    });
+
+    let result: { id: string } | { error: string };
+
+    if (existingItineraryId) {
+      // Update existing itinerary
+      result = await updateItinerary({
+        itineraryId: existingItineraryId,
+        userId: user.id,
+        title,
+        description,
+        area,
+        days,
+        tags,
+      });
+    } else {
+      // Create new itinerary
+      result = await publishItinerary({
+        userId: user.id,
+        title,
+        description,
+        area,
+        days,
+        tags,
+      });
+    }
 
     setIsPublishing(false);
 
@@ -258,36 +331,49 @@ export default function EditorPage() {
       return;
     }
 
-    setPublishedId(result.id);
+    setExistingItineraryId(result.id);
     router.push(`/itineraries/${result.id}`);
-  }, [user, title, days, itinerary, router]);
+  }, [user, title, description, area, days, tags, existingItineraryId, router]);
 
   // Copy share link
   const handleShareLink = useCallback(() => {
-    if (publishedId) {
+    if (existingItineraryId) {
       navigator.clipboard.writeText(
-        `https://plan.journeyjpn.com/itineraries/${publishedId}`
+        `https://plan.journeyjpn.com/itineraries/${existingItineraryId}`
       );
     } else {
       navigator.clipboard.writeText(window.location.href);
     }
     setShowShareToast(true);
     setTimeout(() => setShowShareToast(false), 2000);
-  }, [publishedId]);
+  }, [existingItineraryId]);
 
   const usedSpotIds = items.map((i) => i.spotId);
 
   // Custom collision detection: prefer itinerary items and drop zone
   const collisionDetection = useCallback(
     (args: Parameters<typeof closestCenter>[0]) => {
-      // First check if pointer is within any droppable
       const pointerCollisions = pointerWithin(args);
       if (pointerCollisions.length > 0) return pointerCollisions;
-      // Fall back to rect intersection
       return rectIntersection(args);
     },
     []
   );
+
+  // Get area label for display
+  const areaLabel = AREAS.find((a) => a.value === area)?.label || area;
+
+  // Loading state for existing itinerary
+  if (loadingItinerary) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-sm text-gray-500">Loading itinerary...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <DndContext
@@ -312,8 +398,8 @@ export default function EditorPage() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
-            <span className={`text-xs px-2.5 py-1 rounded ${publishedId ? "text-accent bg-accent-light font-medium" : "text-gray-400 bg-gray-100"}`}>
-              {publishedId ? "Published" : "Draft"}
+            <span className={`text-xs px-2.5 py-1 rounded ${existingItineraryId ? "text-accent bg-accent-light font-medium" : "text-gray-400 bg-gray-100"}`}>
+              {existingItineraryId ? "Published" : "Draft"}
             </span>
           </div>
           <div className="flex items-center gap-2.5 relative">
@@ -331,7 +417,11 @@ export default function EditorPage() {
               disabled={isPublishing}
               className="text-sm text-white bg-accent hover:bg-accent-hover px-5 py-1.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isPublishing ? "Publishing..." : publishedId ? "Published" : "Publish"}
+              {isPublishing
+                ? "Saving..."
+                : existingItineraryId
+                ? "Save Changes"
+                : "Publish"}
             </button>
             {showShareToast && (
               <div className="absolute top-full right-0 mt-2 bg-gray-800 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap">
@@ -347,9 +437,21 @@ export default function EditorPage() {
           <div className="bg-white border-r border-gray-200 flex flex-col overflow-hidden relative">
             {/* Trip info bar */}
             <div className="px-5 py-3 border-b border-gray-200 flex items-center gap-3 text-[13px] text-gray-500 flex-shrink-0">
-              <span>📍 Tokyo</span>
+              <div className="flex items-center gap-1.5">
+                <span>📍</span>
+                <select
+                  value={area}
+                  onChange={(e) => setArea(e.target.value as Area)}
+                  className="bg-transparent border-none outline-none text-[13px] text-gray-500 cursor-pointer hover:text-gray-700"
+                >
+                  {AREAS.map((a) => (
+                    <option key={a.value} value={a.value}>
+                      {a.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <span>📅 {days.length} days</span>
-              <span>🏷️ Culture, Food</span>
             </div>
 
             {/* Day tabs */}
@@ -367,7 +469,10 @@ export default function EditorPage() {
                   Day {day.dayNumber}
                 </button>
               ))}
-              <button className="flex-shrink-0 text-gray-300 hover:text-gray-500 text-base px-2">
+              <button
+                onClick={handleAddDay}
+                className="flex-shrink-0 text-gray-300 hover:text-gray-500 text-base px-2"
+              >
                 +
               </button>
             </div>

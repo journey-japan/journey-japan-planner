@@ -219,6 +219,120 @@ export async function publishItinerary({
   return { id: itineraryId };
 }
 
+// ===== UPDATE ITINERARY =====
+
+export async function updateItinerary({
+  itineraryId,
+  userId,
+  title,
+  description,
+  area,
+  days,
+  tags,
+}: {
+  itineraryId: string;
+  userId: string;
+  title: string;
+  description: string;
+  area: string;
+  days: ItineraryDay[];
+  tags: string[];
+}): Promise<{ id: string } | { error: string }> {
+  // 1. Update itinerary metadata
+  const { error: updateError } = await supabase
+    .from("itineraries")
+    .update({
+      title,
+      description,
+      area,
+      duration_days: days.length,
+      tags,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", itineraryId)
+    .eq("user_id", userId);
+
+  if (updateError) {
+    console.error("Error updating itinerary:", updateError);
+    return { error: updateError.message };
+  }
+
+  // 2. Fetch existing day IDs to delete their items
+  const { data: existingDays } = await supabase
+    .from("itinerary_days")
+    .select("id")
+    .eq("itinerary_id", itineraryId);
+
+  if (existingDays && existingDays.length > 0) {
+    const existingDayIds = existingDays.map((d: { id: string }) => d.id);
+
+    // 3. Delete existing items
+    await supabase
+      .from("itinerary_items")
+      .delete()
+      .in("day_id", existingDayIds);
+
+    // 4. Delete existing days
+    await supabase
+      .from("itinerary_days")
+      .delete()
+      .eq("itinerary_id", itineraryId);
+  }
+
+  // 5. Re-insert days and items
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+  for (const day of days) {
+    const { data: dayData, error: dayError } = await supabase
+      .from("itinerary_days")
+      .insert({
+        itinerary_id: itineraryId,
+        day_number: day.dayNumber,
+        date: day.date || null,
+        title: day.title || null,
+      })
+      .select("id")
+      .single();
+
+    if (dayError || !dayData) {
+      console.error("Error inserting day:", dayError);
+      continue;
+    }
+
+    const dayId = dayData.id as string;
+    const dbItems = day.items.filter((item) => uuidRegex.test(item.spotId));
+
+    if (dbItems.length > 0) {
+      const itemRows = dbItems.map((item, idx) => ({
+        day_id: dayId,
+        spot_id: item.spotId,
+        order_index: idx,
+        start_time: item.startTime || null,
+        duration_minutes: item.durationMinutes || item.spot.avgDurationMin,
+        note: item.note || null,
+        transport_to_next: item.transportToNext
+          ? {
+              mode: item.transportToNext.mode,
+              durationMinutes: item.transportToNext.durationMinutes,
+              distance: item.transportToNext.distance || null,
+              detail: item.transportToNext.detail || null,
+            }
+          : null,
+      }));
+
+      const { error: itemsError } = await supabase
+        .from("itinerary_items")
+        .insert(itemRows);
+
+      if (itemsError) {
+        console.error("Error inserting items:", itemsError);
+      }
+    }
+  }
+
+  return { id: itineraryId };
+}
+
 // ===== MAPPERS =====
 
 function mapSpot(row: Record<string, unknown>): Spot {

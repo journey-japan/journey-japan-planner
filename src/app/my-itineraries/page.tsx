@@ -132,14 +132,23 @@ export default function MyItinerariesPage() {
                       </span>
                     </div>
                   </div>
-                  <svg
-                    className="w-5 h-5 text-gray-300 group-hover:text-accent flex-shrink-0 mt-1 ml-4 transition-colors"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
+                  <div className="flex items-center gap-2 flex-shrink-0 mt-1 ml-4">
+                    <Link
+                      href={`/editor/${itin.id}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-xs font-medium text-gray-500 hover:text-accent border border-gray-200 hover:border-accent px-3 py-1.5 rounded-lg transition-all"
+                    >
+                      Edit
+                    </Link>
+                    <svg
+                      className="w-5 h-5 text-gray-300 group-hover:text-accent transition-colors"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
                 </div>
               </Link>
             ))}
