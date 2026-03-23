@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import LoginModal from "@/components/auth/LoginModal";
@@ -35,13 +36,15 @@ export default function Header() {
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center text-white font-bold text-sm">
-              J
-            </div>
-            <span className="text-lg font-bold">
-              Journey <span className="text-accent">Japan</span>
-            </span>
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/jj_logo.jpg"
+              alt="Journey Japan"
+              width={160}
+              height={36}
+              className="h-9 w-auto"
+              priority
+            />
           </Link>
 
           {/* Navigation */}
@@ -58,7 +61,7 @@ export default function Header() {
             <Link href="#" className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
               Pro Picks
             </Link>
-            <Link href="#" className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
+            <Link href="/blog" className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
               Blog
             </Link>
           </nav>
