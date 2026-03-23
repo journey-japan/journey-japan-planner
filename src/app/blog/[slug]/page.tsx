@@ -48,6 +48,19 @@ function formatDate(dateStr?: string): string {
   });
 }
 
+const EDITORIAL_EMAIL = "info@journeyjpn.com";
+const EDITORIAL_NAME = "Journey Japan Editorial";
+
+function getAuthorDisplay(author: { displayName: string; avatarUrl?: string; email: string } | undefined) {
+  if (!author) return null;
+  const isEditorial = author.email === EDITORIAL_EMAIL;
+  return {
+    name: isEditorial ? EDITORIAL_NAME : author.displayName,
+    initial: isEditorial ? "J" : (author.displayName[0]?.toUpperCase() || "J"),
+    avatarUrl: isEditorial ? undefined : author.avatarUrl,
+  };
+}
+
 function categoryLabel(category: string): string {
   const map: Record<string, string> = {
     guides: "Guides",
@@ -65,7 +78,10 @@ export default async function BlogPostPage({ params }: Props) {
     notFound();
   }
 
+  const authorDisplay = getAuthorDisplay(post.author);
+
   // JSON-LD for article
+  const isEditorial = post.author?.email === EDITORIAL_EMAIL;
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -75,10 +91,9 @@ export default async function BlogPostPage({ params }: Props) {
     dateModified: post.updatedAt,
     image: post.featuredImageUrl,
     author: post.author
-      ? {
-          "@type": "Person",
-          name: post.author.displayName,
-        }
+      ? isEditorial
+        ? { "@type": "Organization", name: "Journey Japan" }
+        : { "@type": "Person", name: post.author.displayName }
       : {
           "@type": "Organization",
           name: "Journey Japan",
@@ -128,21 +143,21 @@ export default async function BlogPostPage({ params }: Props) {
           </h1>
 
           <div className="flex items-center gap-4 text-sm text-gray-500 mb-8">
-            {post.author && (
+            {authorDisplay && (
               <div className="flex items-center gap-2">
-                {post.author.avatarUrl ? (
+                {authorDisplay.avatarUrl ? (
                   <img
-                    src={post.author.avatarUrl}
-                    alt={post.author.displayName}
+                    src={authorDisplay.avatarUrl}
+                    alt={authorDisplay.name}
                     className="w-8 h-8 rounded-full"
                   />
                 ) : (
                   <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-white text-sm font-medium">
-                    {post.author.displayName[0]?.toUpperCase() || "J"}
+                    {authorDisplay.initial}
                   </div>
                 )}
                 <span className="font-medium text-gray-700">
-                  {post.author.displayName}
+                  {authorDisplay.name}
                 </span>
               </div>
             )}

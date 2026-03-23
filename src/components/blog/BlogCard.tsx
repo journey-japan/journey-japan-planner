@@ -22,7 +22,23 @@ function categoryLabel(category: string): string {
   return map[category] || category;
 }
 
+const EDITORIAL_EMAIL = "info@journeyjpn.com";
+const EDITORIAL_NAME = "Journey Japan Editorial";
+
+function getAuthorDisplay(author: BlogPost["author"]) {
+  if (!author) return null;
+  const isEditorial = author.email === EDITORIAL_EMAIL;
+  return {
+    name: isEditorial ? EDITORIAL_NAME : author.displayName,
+    initial: isEditorial ? "J" : (author.displayName[0]?.toUpperCase() || "J"),
+    avatarUrl: isEditorial ? undefined : author.avatarUrl,
+    showAccentBg: isEditorial,
+  };
+}
+
 export default function BlogCard({ post }: { post: BlogPost }) {
+  const authorDisplay = getAuthorDisplay(post.author);
+
   return (
     <Link
       href={`/blog/${post.slug}`}
@@ -65,21 +81,21 @@ export default function BlogCard({ post }: { post: BlogPost }) {
         </p>
 
         {/* Author */}
-        {post.author && (
+        {authorDisplay && (
           <div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-100">
-            {post.author.avatarUrl ? (
+            {authorDisplay.avatarUrl ? (
               <img
-                src={post.author.avatarUrl}
-                alt={post.author.displayName}
+                src={authorDisplay.avatarUrl}
+                alt={authorDisplay.name}
                 className="w-6 h-6 rounded-full"
               />
             ) : (
               <div className="w-6 h-6 rounded-full bg-accent flex items-center justify-center text-white text-xs font-medium">
-                {post.author.displayName[0]?.toUpperCase() || "J"}
+                {authorDisplay.initial}
               </div>
             )}
             <span className="text-xs text-gray-500">
-              {post.author.displayName}
+              {authorDisplay.name}
             </span>
           </div>
         )}
