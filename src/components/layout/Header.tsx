@@ -35,17 +35,18 @@ export default function Header() {
     <>
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 h-16">
-          {/* Logo */}
-          <Link href="/" className="flex items-center">
-            <Image
-              src="/jj_logo.jpg"
-              alt="Journey Japan"
-              width={160}
-              height={36}
-              className="h-9 w-auto"
-              priority
-            />
-          </Link>
+          {/* Logo + Navigation */}
+          <div className="flex items-center gap-8">
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/jj_logo.png"
+                alt="Journey Japan"
+                width={200}
+                height={40}
+                className="h-10 w-auto"
+                priority
+              />
+            </Link>
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center gap-8">
@@ -65,6 +66,7 @@ export default function Header() {
               Blog
             </Link>
           </nav>
+          </div>
 
           {/* Actions */}
           <div className="flex items-center gap-3">
