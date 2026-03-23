@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import Image from "next/image";
@@ -18,9 +19,12 @@ interface SortableSpotCardProps {
   index: number;
   onRemove?: (itemId: string) => void;
   onSpotClick?: (spot: Spot) => void;
+  onNoteChange?: (itemId: string, note: string) => void;
 }
 
-export default function SortableSpotCard({ item, index, onRemove, onSpotClick }: SortableSpotCardProps) {
+export default function SortableSpotCard({ item, index, onRemove, onSpotClick, onNoteChange }: SortableSpotCardProps) {
+  const [isEditingNote, setIsEditingNote] = useState(false);
+  const [noteText, setNoteText] = useState(item.note || "");
   const {
     attributes,
     listeners,
@@ -105,7 +109,19 @@ export default function SortableSpotCard({ item, index, onRemove, onSpotClick }:
 
         {/* Action buttons (visible on hover) */}
         <div className="flex flex-col justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button className="w-7 h-7 rounded-md bg-gray-100 hover:bg-gray-200 text-gray-400 hover:text-gray-600 flex items-center justify-center text-sm">
+          <button
+            className={`w-7 h-7 rounded-md flex items-center justify-center text-sm transition-colors ${
+              item.note || isEditingNote
+                ? "bg-amber-50 text-amber-500 hover:bg-amber-100"
+                : "bg-gray-100 hover:bg-gray-200 text-gray-400 hover:text-gray-600"
+            }`}
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsEditingNote(!isEditingNote);
+            }}
+            title="Add a note"
+          >
             ✎
           </button>
           <button
@@ -120,6 +136,57 @@ export default function SortableSpotCard({ item, index, onRemove, onSpotClick }:
           </button>
         </div>
       </div>
+
+      {/* Note display / edit */}
+      {(item.note && !isEditingNote) && (
+        <div
+          className="ml-[70px] -mt-1 mb-2 px-3 py-1.5 bg-amber-50 border border-amber-100 rounded-lg cursor-pointer hover:bg-amber-100/60 transition-colors"
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsEditingNote(true);
+          }}
+        >
+          <p className="text-xs text-amber-700 leading-relaxed">{item.note}</p>
+        </div>
+      )}
+
+      {isEditingNote && (
+        <div
+          className="ml-[70px] -mt-1 mb-2"
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <textarea
+            autoFocus
+            value={noteText}
+            onChange={(e) => setNoteText(e.target.value)}
+            placeholder="Add a note... (e.g. Try the cotton candy!)"
+            className="w-full text-xs text-gray-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 resize-none outline-none focus:border-amber-300 focus:ring-1 focus:ring-amber-200 placeholder:text-amber-300"
+            rows={2}
+          />
+          <div className="flex justify-end gap-1.5 mt-1">
+            <button
+              className="text-[11px] text-gray-400 hover:text-gray-600 px-2.5 py-1 rounded-md hover:bg-gray-100 transition-colors"
+              onClick={() => {
+                setNoteText(item.note || "");
+                setIsEditingNote(false);
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              className="text-[11px] text-white bg-accent hover:bg-accent-hover px-2.5 py-1 rounded-md transition-colors"
+              onClick={() => {
+                onNoteChange?.(item.id, noteText.trim());
+                setIsEditingNote(false);
+              }}
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Transport line to next spot */}
       {item.transportToNext && (

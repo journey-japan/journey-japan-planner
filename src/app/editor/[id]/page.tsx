@@ -266,6 +266,23 @@ export default function EditorPage() {
     [activeDay]
   );
 
+  // Update note on a spot
+  const handleNoteChange = useCallback(
+    (itemId: string, note: string) => {
+      setDays((prev) => {
+        const newDays = [...prev];
+        newDays[activeDay] = {
+          ...newDays[activeDay],
+          items: newDays[activeDay].items.map((item) =>
+            item.id === itemId ? { ...item, note: note || undefined } : item
+          ),
+        };
+        return newDays;
+      });
+    },
+    [activeDay]
+  );
+
   // Clear all spots from current day
   const handleClearAll = useCallback(() => {
     setDays((prev) => {
@@ -516,6 +533,7 @@ export default function EditorPage() {
                         index={index}
                         onRemove={handleRemoveSpot}
                         onSpotClick={setDetailSpot}
+                        onNoteChange={handleNoteChange}
                       />
                     ))}
                   </SortableContext>
