@@ -9,6 +9,7 @@ function formatDate(dateStr?: string): string {
     year: "numeric",
     month: "short",
     day: "numeric",
+    timeZone: "America/Los_Angeles",
   });
 }
 
