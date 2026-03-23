@@ -1,5 +1,5 @@
 import { MetadataRoute } from "next";
-import { getItineraries } from "@/lib/db";
+import { getItineraries, getBlogPosts } from "@/lib/db";
 import { DESTINATION_DATA } from "@/lib/destination-data";
 
 const SITE_URL = "https://plan.journeyjpn.com";
@@ -39,5 +39,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // If DB is unavailable, return only static pages
   }
 
-  return [...staticPages, ...destinationPages, ...itineraryPages];
+  // Blog pages
+  const blogIndex: MetadataRoute.Sitemap = [
+    {
+      url: `${SITE_URL}/blog`,
+      lastModified: new Date(),
+      changeFrequency: "daily" as const,
+      priority: 0.9,
+    },
+  ];
+
+  let blogPostPages: MetadataRoute.Sitemap = [];
+  try {
+    const posts = await getBlogPosts();
+    blogPostPages = posts.map((post) => ({
+      url: `${SITE_URL}/blog/${post.slug}`,
+      lastModified: new Date(post.updatedAt),
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    }));
+  } catch {
+    // If DB is unavailable, skip blog posts
+  }
+
+  return [...staticPages, ...destinationPages, ...itineraryPages, ...blogIndex, ...blogPostPages];
 }

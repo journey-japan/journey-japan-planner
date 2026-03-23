@@ -9,7 +9,7 @@ export default function Footer() {
         </p>
         <div className="flex gap-6">
           <Link href="#" className="text-sm text-gray-400 hover:text-gray-600 transition-colors">About</Link>
-          <Link href="#" className="text-sm text-gray-400 hover:text-gray-600 transition-colors">Blog</Link>
+          <Link href="/blog" className="text-sm text-gray-400 hover:text-gray-600 transition-colors">Blog</Link>
           <Link href="#" className="text-sm text-gray-400 hover:text-gray-600 transition-colors">Privacy</Link>
           <Link href="#" className="text-sm text-gray-400 hover:text-gray-600 transition-colors">Terms</Link>
         </div>

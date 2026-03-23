@@ -103,6 +103,36 @@ export type SpotCategory =
   | "entertainment"
   | "market";
 
+// ===== Blog Types =====
+
+export type BlogCategory = "guides" | "news" | "tips";
+
+export interface BlogPost {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  category: BlogCategory;
+  featuredImageUrl?: string;
+  tags: string[];
+  metaTitle?: string;
+  metaDescription?: string;
+  authorId?: string;
+  author?: UserProfile;
+  status: "draft" | "published";
+  viewCount: number;
+  publishedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const BLOG_CATEGORIES: { value: BlogCategory; label: string }[] = [
+  { value: "guides", label: "Guides" },
+  { value: "news", label: "News" },
+  { value: "tips", label: "Tips" },
+];
+
 // ===== UI Types =====
 
 export interface AreaOption {

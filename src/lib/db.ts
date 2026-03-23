@@ -1,5 +1,5 @@
 import { supabase } from "./supabase";
-import type { Spot, Itinerary, ItineraryDay, ItineraryItem } from "@/types";
+import type { Spot, Itinerary, ItineraryDay, ItineraryItem, BlogPost, BlogCategory } from "@/types";
 
 // ===== SPOTS =====
 
@@ -333,6 +333,127 @@ export async function updateItinerary({
   return { id: itineraryId };
 }
 
+// ===== BLOG POSTS =====
+
+export async function getBlogPosts(category?: BlogCategory): Promise<BlogPost[]> {
+  let query = supabase
+    .from("blog_posts")
+    .select(`
+      *,
+      author:profiles!blog_posts_author_id_fkey(id, email, display_name, avatar_url, is_pro)
+    `)
+    .eq("status", "published")
+    .order("published_at", { ascending: false });
+
+  if (category) query = query.eq("category", category);
+
+  const { data, error } = await query;
+  if (error) {
+    console.error("Error fetching blog posts:", error);
+    return [];
+  }
+
+  return (data || []).map(mapBlogPost);
+}
+
+export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .select(`
+      *,
+      author:profiles!blog_posts_author_id_fkey(id, email, display_name, avatar_url, is_pro)
+    `)
+    .eq("slug", slug)
+    .single();
+
+  if (error || !data) return null;
+  return mapBlogPost(data);
+}
+
+export async function getAllBlogPosts(): Promise<BlogPost[]> {
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .select(`
+      *,
+      author:profiles!blog_posts_author_id_fkey(id, email, display_name, avatar_url, is_pro)
+    `)
+    .order("updated_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching all blog posts:", error);
+    return [];
+  }
+
+  return (data || []).map(mapBlogPost);
+}
+
+export async function upsertBlogPost(post: {
+  id?: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  category: BlogCategory;
+  featured_image_url?: string;
+  tags?: string[];
+  meta_title?: string;
+  meta_description?: string;
+  author_id: string;
+  status: "draft" | "published";
+  published_at?: string;
+}): Promise<{ id: string } | { error: string }> {
+  const row = {
+    ...post,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (post.id) {
+    // Update existing
+    const { error } = await supabase
+      .from("blog_posts")
+      .update(row)
+      .eq("id", post.id);
+
+    if (error) return { error: error.message };
+    return { id: post.id };
+  } else {
+    // Insert new
+    const { data, error } = await supabase
+      .from("blog_posts")
+      .insert(row)
+      .select("id")
+      .single();
+
+    if (error || !data) return { error: error?.message || "Failed to create post" };
+    return { id: data.id as string };
+  }
+}
+
+export async function deleteBlogPost(id: string): Promise<{ error?: string }> {
+  const { error } = await supabase
+    .from("blog_posts")
+    .delete()
+    .eq("id", id);
+
+  if (error) return { error: error.message };
+  return {};
+}
+
+export async function incrementBlogViewCount(id: string): Promise<void> {
+  const { data } = await supabase
+    .from("blog_posts")
+    .select("view_count")
+    .eq("id", id)
+    .single();
+
+  if (data) {
+    await supabase
+      .from("blog_posts")
+      .update({ view_count: (data.view_count as number) + 1 })
+      .eq("id", id);
+  }
+}
+
 // ===== MAPPERS =====
 
 function mapSpot(row: Record<string, unknown>): Spot {
@@ -383,6 +504,37 @@ function mapItinerary(row: Record<string, unknown>): Itinerary {
           isPro: author.is_pro as boolean,
         }
       : undefined,
+  };
+}
+
+function mapBlogPost(row: Record<string, unknown>): BlogPost {
+  const author = row.author as Record<string, unknown> | null;
+  return {
+    id: row.id as string,
+    slug: row.slug as string,
+    title: row.title as string,
+    excerpt: row.excerpt as string,
+    content: row.content as string,
+    category: row.category as BlogPost["category"],
+    featuredImageUrl: row.featured_image_url as string | undefined,
+    tags: (row.tags as string[]) || [],
+    metaTitle: row.meta_title as string | undefined,
+    metaDescription: row.meta_description as string | undefined,
+    authorId: row.author_id as string | undefined,
+    author: author
+      ? {
+          id: author.id as string,
+          email: author.email as string,
+          displayName: author.display_name as string,
+          avatarUrl: author.avatar_url as string | undefined,
+          isPro: author.is_pro as boolean,
+        }
+      : undefined,
+    status: row.status as "draft" | "published",
+    viewCount: row.view_count as number,
+    publishedAt: row.published_at as string | undefined,
+    createdAt: row.created_at as string,
+    updatedAt: row.updated_at as string,
   };
 }
 
