@@ -130,7 +130,6 @@ export default async function DestinationPage({
           <div className="absolute inset-0 bg-black/50" />
 
           <div className="relative max-w-3xl mx-auto">
-            <div className="text-5xl mb-4">{dest.emoji}</div>
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
               {dest.heroTitle}
             </h1>
