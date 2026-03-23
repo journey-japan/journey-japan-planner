@@ -31,17 +31,22 @@ export default function AdminBlogPage() {
   const { user, profile, loading: authLoading } = useAuth();
   const router = useRouter();
   const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && (!user || !profile?.is_pro)) {
+    if (authLoading) return;
+
+    if (!user || !profile?.is_pro) {
       router.push("/");
       return;
     }
-    if (user && profile?.is_pro) {
+
+    if (!initialized) {
+      setInitialized(true);
       fetchPosts();
     }
-  }, [user, profile, authLoading, router]);
+  }, [user, profile, authLoading, router, initialized]);
 
   async function fetchPosts() {
     setLoading(true);
@@ -84,7 +89,7 @@ export default function AdminBlogPage() {
     }
   }
 
-  if (authLoading || loading) {
+  if (authLoading || loading || !initialized) {
     return (
       <>
         <Header />
