@@ -6,13 +6,13 @@ import { useEffect, useRef } from "react";
  * Renders blog post content as HTML.
  * Content is stored as markdown-style text in the DB.
  * This component converts basic markdown to HTML for display.
+ * All user input is escaped first, then markdown syntax is converted.
  */
 export default function BlogContent({ content }: { content: string }) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!ref.current) return;
-    // Convert markdown-like content to HTML
     ref.current.innerHTML = markdownToHtml(content);
   }, [content]);
 
@@ -24,17 +24,54 @@ export default function BlogContent({ content }: { content: string }) {
   );
 }
 
-function markdownToHtml(md: string): string {
-  let html = md;
+/**
+ * Escape all HTML entities to prevent XSS.
+ * This is ALWAYS applied first, before any markdown conversion.
+ */
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 
-  // Escape HTML entities (but preserve existing HTML if any)
-  // Only escape if content looks like raw markdown
-  if (!html.includes("<h1") && !html.includes("<p>")) {
-    html = html
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
+/**
+ * Validate a URL is safe (no javascript:, data:, vbscript: etc.)
+ */
+function isSafeUrl(url: string): boolean {
+  const trimmed = url.trim().toLowerCase();
+  if (
+    trimmed.startsWith("javascript:") ||
+    trimmed.startsWith("vbscript:") ||
+    trimmed.startsWith("data:") ||
+    trimmed.startsWith("blob:")
+  ) {
+    return false;
   }
+  return true;
+}
+
+/**
+ * Validate a URL is a safe image source
+ */
+function isSafeImageUrl(url: string): boolean {
+  if (!isSafeUrl(url)) return false;
+  const trimmed = url.trim().toLowerCase();
+  // Only allow http(s) and relative paths
+  return (
+    trimmed.startsWith("https://") ||
+    trimmed.startsWith("http://") ||
+    trimmed.startsWith("/")
+  );
+}
+
+function markdownToHtml(md: string): string {
+  // Step 1: ALWAYS escape HTML first to prevent XSS
+  let html = escapeHtml(md);
+
+  // Step 2: Convert markdown syntax to HTML (operating on escaped text)
 
   // Headers
   html = html.replace(/^### (.+)$/gm, "<h3>$1</h3>");
@@ -46,16 +83,45 @@ function markdownToHtml(md: string): string {
   html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
   html = html.replace(/\*(.+?)\*/g, "<em>$1</em>");
 
-  // Links
+  // Links — validate URL safety
   html = html.replace(
     /\[([^\]]+)\]\(([^)]+)\)/g,
-    '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
+    (_match, text: string, url: string) => {
+      // Unescape the URL for validation (it was escaped above)
+      const rawUrl = url
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"')
+        .replace(/&#039;/g, "'");
+
+      if (!isSafeUrl(rawUrl)) {
+        return text; // Return plain text, strip the link
+      }
+      // Re-escape for safe attribute value
+      const safeUrl = escapeHtml(rawUrl);
+      return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+    }
   );
 
-  // Images
+  // Images — validate URL safety
   html = html.replace(
     /!\[([^\]]*)\]\(([^)]+)\)/g,
-    '<img src="$2" alt="$1" loading="lazy" class="rounded-lg" />'
+    (_match, alt: string, url: string) => {
+      const rawUrl = url
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"')
+        .replace(/&#039;/g, "'");
+
+      if (!isSafeImageUrl(rawUrl)) {
+        return alt; // Return alt text only, strip the image
+      }
+      const safeUrl = escapeHtml(rawUrl);
+      const safeAlt = alt; // Already escaped
+      return `<img src="${safeUrl}" alt="${safeAlt}" loading="lazy" class="rounded-lg" />`;
+    }
   );
 
   // Horizontal rules
@@ -66,15 +132,14 @@ function markdownToHtml(md: string): string {
   html = html.replace(/(<li>.*<\/li>\n?)+/g, (match) => `<ul>${match}</ul>`);
 
   // Blockquotes
-  html = html.replace(/^> (.+)$/gm, "<blockquote><p>$1</p></blockquote>");
+  html = html.replace(/^&gt; (.+)$/gm, "<blockquote><p>$1</p></blockquote>");
 
-  // Paragraphs - wrap remaining text blocks
+  // Paragraphs — wrap remaining text blocks
   html = html
     .split("\n\n")
     .map((block) => {
       block = block.trim();
       if (!block) return "";
-      // Don't wrap if it's already an HTML block element
       if (
         block.startsWith("<h") ||
         block.startsWith("<ul") ||

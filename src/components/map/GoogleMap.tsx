@@ -159,7 +159,7 @@ export default function GoogleMap({ items, activeItemIndex, onMarkerClick }: Goo
             max-width: 120px;
             overflow: hidden;
             text-overflow: ellipsis;
-          ">${item.spot.nameEn.length > 16 ? item.spot.nameEn.slice(0, 16) + "…" : item.spot.nameEn}</div>
+          ">${(item.spot.nameEn.length > 16 ? item.spot.nameEn.slice(0, 16) + "…" : item.spot.nameEn).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")}</div>
         </div>
       `;
 

@@ -9,6 +9,7 @@ import Footer from "@/components/layout/Footer";
 import { supabase } from "@/lib/supabase";
 import { BLOG_CATEGORIES } from "@/types";
 import type { BlogCategory } from "@/types";
+import { validateBlogPost } from "@/lib/security";
 
 function generateSlug(title: string): string {
   return title
@@ -89,8 +90,19 @@ export default function BlogEditorPage() {
   }
 
   async function handleSave(publishStatus: "draft" | "published") {
-    if (!title.trim() || !slug.trim()) {
-      alert("Title and slug are required.");
+    const validationError = validateBlogPost({
+      title,
+      slug,
+      excerpt,
+      content,
+      category,
+      featuredImageUrl: featuredImageUrl || undefined,
+      metaTitle: metaTitle || undefined,
+      metaDescription: metaDescription || undefined,
+    });
+
+    if (validationError) {
+      alert(validationError);
       return;
     }
 
