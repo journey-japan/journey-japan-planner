@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -30,15 +30,42 @@ function mapSpot(row: Record<string, unknown>): Spot {
 }
 
 export default function AdminSpotsPage() {
+  return (
+    <Suspense fallback={
+      <>
+        <Header />
+        <main className="min-h-screen flex items-center justify-center">
+          <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+        </main>
+        <Footer />
+      </>
+    }>
+      <AdminSpotsContent />
+    </Suspense>
+  );
+}
+
+function AdminSpotsContent() {
   const { user, profile, loading: authLoading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [spots, setSpots] = useState<Spot[]>([]);
   const [loading, setLoading] = useState(false);
   const [initialized, setInitialized] = useState(false);
-  const [filterArea, setFilterArea] = useState<string>("all");
-  const [filterCategory, setFilterCategory] = useState<string>("all");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
+  const [filterArea, setFilterArea] = useState<string>(searchParams.get("area") || "all");
+  const [filterCategory, setFilterCategory] = useState<string>(searchParams.get("category") || "all");
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
+  const [viewMode, setViewMode] = useState<"grid" | "table">((searchParams.get("view") as "grid" | "table") || "grid");
+
+  const updateUrl = useCallback((area: string, category: string, q: string, view: string) => {
+    const params = new URLSearchParams();
+    if (area !== "all") params.set("area", area);
+    if (category !== "all") params.set("category", category);
+    if (q) params.set("q", q);
+    if (view !== "grid") params.set("view", view);
+    const qs = params.toString();
+    router.replace(`/admin/spots${qs ? `?${qs}` : ""}`, { scroll: false });
+  }, [router]);
 
   useEffect(() => {
     if (authLoading) return;
@@ -163,13 +190,13 @@ export default function AdminSpotsPage() {
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => { setSearchQuery(e.target.value); updateUrl(filterArea, filterCategory, e.target.value, viewMode); }}
               placeholder="Search spots..."
               className="flex-1 min-w-[200px] text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
             />
             <select
               value={filterArea}
-              onChange={(e) => setFilterArea(e.target.value)}
+              onChange={(e) => { setFilterArea(e.target.value); updateUrl(e.target.value, filterCategory, searchQuery, viewMode); }}
               className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent"
             >
               <option value="all">All Areas</option>
@@ -181,7 +208,7 @@ export default function AdminSpotsPage() {
             </select>
             <select
               value={filterCategory}
-              onChange={(e) => setFilterCategory(e.target.value)}
+              onChange={(e) => { setFilterCategory(e.target.value); updateUrl(filterArea, e.target.value, searchQuery, viewMode); }}
               className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent"
             >
               <option value="all">All Categories</option>
@@ -193,7 +220,7 @@ export default function AdminSpotsPage() {
             </select>
             <div className="flex border border-gray-200 rounded-lg overflow-hidden">
               <button
-                onClick={() => setViewMode("grid")}
+                onClick={() => { setViewMode("grid"); updateUrl(filterArea, filterCategory, searchQuery, "grid"); }}
                 className={`px-3 py-2 text-sm ${
                   viewMode === "grid"
                     ? "bg-accent text-white"
@@ -203,7 +230,7 @@ export default function AdminSpotsPage() {
                 Grid
               </button>
               <button
-                onClick={() => setViewMode("table")}
+                onClick={() => { setViewMode("table"); updateUrl(filterArea, filterCategory, searchQuery, "table"); }}
                 className={`px-3 py-2 text-sm ${
                   viewMode === "table"
                     ? "bg-accent text-white"
