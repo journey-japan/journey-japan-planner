@@ -43,19 +43,19 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 const CATEGORY_EMOJIS: Record<string, string> = {
-  shrine: "\u26E9\uFE0F",
-  temple: "\u26E9\uFE0F",
-  museum: "\uD83C\uDFA8",
-  park: "\uD83C\uDF33",
-  observation: "\uD83C\uDF06",
-  shopping: "\uD83D\uDECD\uFE0F",
-  food: "\uD83C\uDF63",
-  restaurant: "\uD83C\uDF5C",
-  landmark: "\uD83D\uDCCD",
-  onsen: "\u2668\uFE0F",
-  nature: "\uD83C\uDFD4\uFE0F",
-  entertainment: "\uD83C\uDFAE",
-  market: "\uD83D\uDC1F",
+  shrine: "⛩️",
+  temple: "⛩️",
+  museum: "🎨",
+  park: "🌳",
+  observation: "🌆",
+  shopping: "🛍️",
+  food: "🍣",
+  restaurant: "🍜",
+  landmark: "📍",
+  onsen: "♨️",
+  nature: "🏔️",
+  entertainment: "🎮",
+  market: "🐟",
 };
 
 interface SpotGridProps {
@@ -124,7 +124,7 @@ export default function SpotGrid({ spots }: SpotGridProps) {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-4xl bg-gradient-to-br from-gray-100 to-gray-50">
-                    {CATEGORY_EMOJIS[spot.category] || "\uD83D\uDCCD"}
+                    {CATEGORY_EMOJIS[spot.category] || "📍"}
                   </div>
                 )}
                 {/* Category badge */}
@@ -150,12 +150,12 @@ export default function SpotGrid({ spots }: SpotGridProps) {
                 </p>
                 <div className="flex items-center gap-3 mt-3 text-xs text-gray-400">
                   <span className="flex items-center gap-1">
-                    <span>\u23F1</span>
+                    <span>⏱</span>
                     ~{spot.avgDurationMin} min
                   </span>
                   {spot.address && (
                     <span className="truncate flex items-center gap-1">
-                      <span>\uD83D\uDCCD</span>
+                      <span>📍</span>
                       {spot.address.split(",").slice(-2).join(",").trim()}
                     </span>
                   )}
