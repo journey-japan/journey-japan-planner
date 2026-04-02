@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ItineraryCard from "@/components/itinerary/ItineraryCard";
+import SpotGrid from "@/components/destination/SpotGrid";
 import { DESTINATION_DATA } from "@/lib/destination-data";
 import { getItineraries, getSpots } from "@/lib/db";
 import { SAMPLE_ITINERARIES } from "@/lib/sample-data";
@@ -222,6 +223,19 @@ export default async function DestinationPage({
             </div>
           </div>
         </section>
+
+        {/* ===== EXPLORE SPOTS ===== */}
+        {spots.length > 0 && (
+          <section id="spots" className="max-w-7xl mx-auto px-6 py-14">
+            <h2 className="text-xl font-bold mb-2">
+              Explore {spots.length}+ Spots in {dest.label}
+            </h2>
+            <p className="text-sm text-gray-500 mb-8">
+              Browse our curated collection of must-visit places in {dest.label} — from temples and shrines to hidden food spots.
+            </p>
+            <SpotGrid spots={spots} />
+          </section>
+        )}
 
         {/* ===== ITINERARIES FOR THIS AREA ===== */}
         {itineraries.length > 0 && (
