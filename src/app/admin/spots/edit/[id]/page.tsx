@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import Header from "@/components/layout/Header";
@@ -12,11 +12,31 @@ import type { Area, SpotCategory } from "@/types";
 import { validateSpot } from "@/lib/security";
 
 export default function SpotEditorPage() {
+  return (
+    <Suspense fallback={
+      <>
+        <Header />
+        <main className="min-h-screen flex items-center justify-center">
+          <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+        </main>
+        <Footer />
+      </>
+    }>
+      <SpotEditorContent />
+    </Suspense>
+  );
+}
+
+function SpotEditorContent() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const id = params.id as string;
   const isNew = id === "new";
   const { user, profile, loading: authLoading } = useAuth();
   const router = useRouter();
+
+  // Preserve list page filters for back navigation
+  const backUrl = "/admin/spots" + (searchParams.get("back") ? `?${searchParams.get("back")}` : "");
 
   const [nameEn, setNameEn] = useState("");
   const [nameJa, setNameJa] = useState("");
@@ -56,7 +76,7 @@ export default function SpotEditorPage() {
       .single();
 
     if (error || !data) {
-      router.push("/admin/spots");
+      router.push(backUrl);
       return;
     }
 
@@ -157,7 +177,7 @@ export default function SpotEditorPage() {
       return;
     }
 
-    router.push("/admin/spots");
+    router.push(backUrl);
   }
 
   async function handleDelete() {
@@ -172,7 +192,7 @@ export default function SpotEditorPage() {
     });
 
     if (res.ok) {
-      router.push("/admin/spots");
+      router.push(backUrl);
     } else {
       const data = await res.json();
       alert(`Error: ${data.error}`);
@@ -238,7 +258,7 @@ export default function SpotEditorPage() {
           <div className="flex items-center justify-between mb-8">
             <div>
               <Link
-                href="/admin/spots"
+                href={backUrl}
                 className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
               >
                 &larr; Back to Spot Management
@@ -567,7 +587,7 @@ export default function SpotEditorPage() {
             {/* Bottom Actions */}
             <div className="flex justify-between items-center pb-10">
               <Link
-                href="/admin/spots"
+                href={backUrl}
                 className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
               >
                 &larr; Cancel

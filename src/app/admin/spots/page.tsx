@@ -57,6 +57,21 @@ function AdminSpotsContent() {
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [viewMode, setViewMode] = useState<"grid" | "table">((searchParams.get("view") as "grid" | "table") || "grid");
 
+  // Build current filter query string for passing to edit page
+  const currentFilterQs = useMemo(() => {
+    const params = new URLSearchParams();
+    if (filterArea !== "all") params.set("area", filterArea);
+    if (filterCategory !== "all") params.set("category", filterCategory);
+    if (searchQuery) params.set("q", searchQuery);
+    if (viewMode !== "grid") params.set("view", viewMode);
+    return params.toString();
+  }, [filterArea, filterCategory, searchQuery, viewMode]);
+
+  function editUrl(spotId: string) {
+    const back = currentFilterQs ? `?back=${encodeURIComponent(currentFilterQs)}` : "";
+    return `/admin/spots/edit/${spotId}${back}`;
+  }
+
   const updateUrl = useCallback((area: string, category: string, q: string, view: string) => {
     const params = new URLSearchParams();
     if (area !== "all") params.set("area", area);
@@ -231,9 +246,10 @@ function AdminSpotsContent() {
           {viewMode === "grid" && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {filteredSpots.map((spot) => (
-                <div
+                <Link
                   key={spot.id}
-                  className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow group"
+                  href={editUrl(spot.id)}
+                  className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md hover:border-accent/30 transition-all group block"
                 >
                   {/* Main photo */}
                   <div className="relative h-40 bg-gray-100">
@@ -289,17 +305,8 @@ function AdminSpotsContent() {
                         ~{spot.avgDurationMin} min
                       </span>
                     </div>
-                    {/* Actions */}
-                    <div className="mt-3 pt-3 border-t border-gray-100">
-                      <Link
-                        href={`/admin/spots/edit/${spot.id}`}
-                        className="text-xs font-medium text-accent hover:underline"
-                      >
-                        Edit
-                      </Link>
-                    </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}
@@ -325,8 +332,8 @@ function AdminSpotsContent() {
                     <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 hidden lg:table-cell">
                       Photos
                     </th>
-                    <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">
-                      Actions
+                    <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 hidden lg:table-cell">
+                      Duration
                     </th>
                   </tr>
                 </thead>
@@ -334,7 +341,8 @@ function AdminSpotsContent() {
                   {filteredSpots.map((spot) => (
                     <tr
                       key={spot.id}
-                      className="border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors"
+                      className="border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors cursor-pointer"
+                      onClick={() => router.push(editUrl(spot.id))}
                     >
                       <td className="px-4 py-3">
                         <div className="w-14 h-14 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
@@ -379,13 +387,10 @@ function AdminSpotsContent() {
                           {spot.photoUrls?.length || 0}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-right">
-                          <Link
-                            href={`/admin/spots/edit/${spot.id}`}
-                            className="text-xs font-medium text-accent hover:underline"
-                          >
-                            Edit
-                          </Link>
+                      <td className="px-4 py-3 text-right hidden lg:table-cell">
+                        <span className="text-xs text-gray-400">
+                          ~{spot.avgDurationMin} min
+                        </span>
                       </td>
                     </tr>
                   ))}
