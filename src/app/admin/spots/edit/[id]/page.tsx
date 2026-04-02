@@ -160,6 +160,25 @@ export default function SpotEditorPage() {
     router.push("/admin/spots");
   }
 
+  async function handleDelete() {
+    if (!confirm(`Delete "${nameEn}"? This cannot be undone.`)) return;
+
+    const session = await supabase.auth.getSession();
+    const token = session.data.session?.access_token;
+
+    const res = await fetch(`/api/admin/spots/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (res.ok) {
+      router.push("/admin/spots");
+    } else {
+      const data = await res.json();
+      alert(`Error: ${data.error}`);
+    }
+  }
+
   function addPhotoUrl() {
     setPhotoUrls([...photoUrls, ""]);
   }
@@ -385,12 +404,22 @@ export default function SpotEditorPage() {
                 <h2 className="text-sm font-semibold text-gray-700">
                   Photos ({photoUrls.filter((u) => u.trim()).length})
                 </h2>
-                <button
-                  onClick={addPhotoUrl}
-                  className="text-xs font-medium text-accent hover:text-accent-hover transition-colors"
-                >
-                  + Add Photo URL
-                </button>
+                <div className="flex items-center gap-3">
+                  <a
+                    href={`https://unsplash.com/s/photos/${encodeURIComponent(nameEn + " " + area + " Japan")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors flex items-center gap-1"
+                  >
+                    Search Unsplash <span className="text-gray-300">↗</span>
+                  </a>
+                  <button
+                    onClick={addPhotoUrl}
+                    className="text-xs font-medium text-accent hover:text-accent-hover transition-colors"
+                  >
+                    + Add Photo URL
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-4">
@@ -543,13 +572,23 @@ export default function SpotEditorPage() {
               >
                 &larr; Cancel
               </Link>
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="text-sm font-medium text-white bg-accent hover:bg-accent-hover px-6 py-2.5 rounded-lg transition-colors disabled:opacity-50"
-              >
-                {saving ? "Saving..." : "Save Spot"}
-              </button>
+              <div className="flex items-center gap-3">
+                {!isNew && (
+                  <button
+                    onClick={handleDelete}
+                    className="text-sm font-medium text-red-500 hover:text-red-700 px-4 py-2.5 rounded-lg border border-red-200 hover:bg-red-50 transition-colors"
+                  >
+                    Delete Spot
+                  </button>
+                )}
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="text-sm font-medium text-white bg-accent hover:bg-accent-hover px-6 py-2.5 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  {saving ? "Saving..." : "Save Spot"}
+                </button>
+              </div>
             </div>
           </div>
         </section>

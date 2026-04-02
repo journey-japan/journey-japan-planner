@@ -93,25 +93,6 @@ function AdminSpotsContent() {
     setLoading(false);
   }
 
-  async function handleDelete(id: string, name: string) {
-    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
-
-    const session = await supabase.auth.getSession();
-    const token = session.data.session?.access_token;
-
-    const res = await fetch(`/api/admin/spots/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (res.ok) {
-      setSpots((prev) => prev.filter((s) => s.id !== id));
-    } else {
-      const data = await res.json();
-      alert(`Error: ${data.error}`);
-    }
-  }
-
   const filteredSpots = useMemo(() => {
     let result = spots;
     if (filterArea !== "all") {
@@ -309,19 +290,13 @@ function AdminSpotsContent() {
                       </span>
                     </div>
                     {/* Actions */}
-                    <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
+                    <div className="mt-3 pt-3 border-t border-gray-100">
                       <Link
                         href={`/admin/spots/edit/${spot.id}`}
                         className="text-xs font-medium text-accent hover:underline"
                       >
                         Edit
                       </Link>
-                      <button
-                        onClick={() => handleDelete(spot.id, spot.nameEn)}
-                        className="text-xs font-medium text-red-500 hover:underline"
-                      >
-                        Delete
-                      </button>
                     </div>
                   </div>
                 </div>
@@ -405,20 +380,12 @@ function AdminSpotsContent() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <div className="flex items-center justify-end gap-2">
                           <Link
                             href={`/admin/spots/edit/${spot.id}`}
                             className="text-xs font-medium text-accent hover:underline"
                           >
                             Edit
                           </Link>
-                          <button
-                            onClick={() => handleDelete(spot.id, spot.nameEn)}
-                            className="text-xs font-medium text-red-500 hover:underline"
-                          >
-                            Delete
-                          </button>
-                        </div>
                       </td>
                     </tr>
                   ))}
