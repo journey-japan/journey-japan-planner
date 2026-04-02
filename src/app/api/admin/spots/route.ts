@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { supabaseAdmin } from "@/lib/supabase-server";
+import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { validateSpot } from "@/lib/security";
 
 async function verifyAdmin(request: NextRequest) {
@@ -11,7 +11,7 @@ async function verifyAdmin(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser(token);
   if (!user) return null;
 
-  const { data: profile } = await supabaseAdmin
+  const { data: profile } = await getSupabaseAdmin()
     .from("profiles")
     .select("is_pro")
     .eq("id", user.id)
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error }, { status: 400 });
   }
 
-  const { data, error: dbError } = await supabaseAdmin
+  const { data, error: dbError } = await getSupabaseAdmin()
     .from("spots")
     .insert({
       name_en: body.name_en.trim(),

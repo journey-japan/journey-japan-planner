@@ -136,15 +136,13 @@ export default function AdminSpotsPage() {
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div>
-              <div className="flex items-center gap-3 mb-1">
-                <h1 className="text-2xl font-bold">Spot Management</h1>
-                <Link
-                  href="/admin/blog"
-                  className="text-xs text-gray-400 hover:text-accent transition-colors"
-                >
-                  Blog →
-                </Link>
-              </div>
+              <Link
+                href="/admin"
+                className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                &larr; Dashboard
+              </Link>
+              <h1 className="text-2xl font-bold mt-1">Spot Management</h1>
               <p className="text-sm text-gray-500">
                 {spots.length} spots total —{" "}
                 {AREAS.filter((a) => areaCounts[a.value])

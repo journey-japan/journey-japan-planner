@@ -111,7 +111,13 @@ export default function AdminBlogPage() {
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h1 className="text-2xl font-bold">Blog Management</h1>
+              <Link
+                href="/admin"
+                className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                &larr; Dashboard
+              </Link>
+              <h1 className="text-2xl font-bold mt-1">Blog Management</h1>
               <p className="text-sm text-gray-500 mt-1">
                 {posts.length} article{posts.length !== 1 ? "s" : ""}
               </p>
