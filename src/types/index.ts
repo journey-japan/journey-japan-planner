@@ -127,6 +127,22 @@ export interface BlogPost {
   updatedAt: string;
 }
 
+export const SPOT_CATEGORIES: { value: SpotCategory; label: string }[] = [
+  { value: "shrine", label: "Shrine" },
+  { value: "temple", label: "Temple" },
+  { value: "museum", label: "Museum" },
+  { value: "park", label: "Park" },
+  { value: "observation", label: "Observation" },
+  { value: "shopping", label: "Shopping" },
+  { value: "food", label: "Food" },
+  { value: "restaurant", label: "Restaurant" },
+  { value: "landmark", label: "Landmark" },
+  { value: "onsen", label: "Onsen" },
+  { value: "nature", label: "Nature" },
+  { value: "entertainment", label: "Entertainment" },
+  { value: "market", label: "Market" },
+];
+
 export const BLOG_CATEGORIES: { value: BlogCategory; label: string }[] = [
   { value: "guides", label: "Guides" },
   { value: "news", label: "News" },

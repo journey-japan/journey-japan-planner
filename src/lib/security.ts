@@ -84,3 +84,73 @@ export function validateBlogPost(fields: {
 
   return null; // Valid
 }
+
+/**
+ * Validate spot input fields.
+ * Returns null if valid, or an error message string.
+ */
+export function validateSpot(fields: {
+  nameEn: string;
+  nameJa: string;
+  description: string;
+  category: string;
+  area: string;
+  lat: number;
+  lng: number;
+  address: string;
+  photoUrls: string[];
+  avgDurationMin: number;
+  admissionFee?: number;
+}): string | null {
+  if (!fields.nameEn.trim()) return "English name is required.";
+  if (fields.nameEn.length > 200) return "English name must be under 200 characters.";
+
+  if (!fields.nameJa.trim()) return "Japanese name is required.";
+  if (fields.nameJa.length > 200) return "Japanese name must be under 200 characters.";
+
+  if (!fields.description.trim()) return "Description is required.";
+  if (fields.description.length > 2000) return "Description must be under 2000 characters.";
+
+  const validCategories = [
+    "shrine", "temple", "museum", "park", "observation", "shopping",
+    "food", "restaurant", "landmark", "onsen", "nature", "entertainment", "market",
+  ];
+  if (!validCategories.includes(fields.category)) return "Invalid category.";
+
+  const validAreas = [
+    "tokyo", "kyoto", "osaka", "nara", "hiroshima",
+    "hakone", "nikko", "kamakura", "yokohama", "fukuoka",
+  ];
+  if (!validAreas.includes(fields.area)) return "Invalid area.";
+
+  if (typeof fields.lat !== "number" || fields.lat < -90 || fields.lat > 90) {
+    return "Latitude must be between -90 and 90.";
+  }
+  if (typeof fields.lng !== "number" || fields.lng < -180 || fields.lng > 180) {
+    return "Longitude must be between -180 and 180.";
+  }
+
+  if (!fields.address.trim()) return "Address is required.";
+
+  for (const url of fields.photoUrls) {
+    const trimmed = url.trim().toLowerCase();
+    if (trimmed && !trimmed.startsWith("https://") && !trimmed.startsWith("http://")) {
+      return "Photo URLs must start with https:// or http://";
+    }
+    if (trimmed.startsWith("javascript:") || trimmed.startsWith("data:")) {
+      return "Invalid photo URL.";
+    }
+  }
+
+  if (typeof fields.avgDurationMin !== "number" || fields.avgDurationMin < 1) {
+    return "Average duration must be at least 1 minute.";
+  }
+
+  if (fields.admissionFee !== undefined && fields.admissionFee !== null) {
+    if (typeof fields.admissionFee !== "number" || fields.admissionFee < 0) {
+      return "Admission fee must be a non-negative number.";
+    }
+  }
+
+  return null;
+}
