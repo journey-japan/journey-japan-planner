@@ -215,7 +215,7 @@ function SpotEditorContent() {
       const path = `${area}/${safeName}/${timestamp}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
       const { error } = await supabase.storage
-        .from("spot-image")
+        .from("spot-images")
         .upload(path, file, { cacheControl: "3600", upsert: false });
 
       if (error) {
@@ -224,7 +224,7 @@ function SpotEditorContent() {
       }
 
       const { data: urlData } = supabase.storage
-        .from("spot-image")
+        .from("spot-images")
         .getPublicUrl(path);
 
       newUrls.push(urlData.publicUrl);
