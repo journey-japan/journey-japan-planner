@@ -55,6 +55,7 @@ function SpotEditorContent() {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(!isNew);
   const [photoErrors, setPhotoErrors] = useState<Record<number, boolean>>({});
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -197,6 +198,47 @@ function SpotEditorContent() {
       const data = await res.json();
       alert(`Error: ${data.error}`);
     }
+  }
+
+  async function handleUploadPhotos(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploading(true);
+    const newUrls: string[] = [];
+
+    for (const file of Array.from(files)) {
+      // Generate a unique path: area/spot-name/timestamp-filename
+      const safeName = nameEn.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "spot";
+      const timestamp = Date.now();
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `${area}/${safeName}/${timestamp}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+
+      const { error } = await supabase.storage
+        .from("spot-image")
+        .upload(path, file, { cacheControl: "3600", upsert: false });
+
+      if (error) {
+        alert(`Upload failed for ${file.name}: ${error.message}`);
+        continue;
+      }
+
+      const { data: urlData } = supabase.storage
+        .from("spot-image")
+        .getPublicUrl(path);
+
+      newUrls.push(urlData.publicUrl);
+    }
+
+    if (newUrls.length > 0) {
+      // Replace empty entries or append
+      const cleaned = photoUrls.filter((u) => u.trim());
+      setPhotoUrls([...cleaned, ...newUrls]);
+    }
+
+    setUploading(false);
+    // Reset file input
+    e.target.value = "";
   }
 
   function addPhotoUrl() {
@@ -433,11 +475,22 @@ function SpotEditorContent() {
                   >
                     Search Unsplash <span className="text-gray-300">↗</span>
                   </a>
+                  <label className={`text-xs font-medium text-white bg-accent hover:bg-accent-hover px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${uploading ? "opacity-50 pointer-events-none" : ""}`}>
+                    {uploading ? "Uploading..." : "Upload Photos"}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleUploadPhotos}
+                      className="hidden"
+                      disabled={uploading}
+                    />
+                  </label>
                   <button
                     onClick={addPhotoUrl}
-                    className="text-xs font-medium text-accent hover:text-accent-hover transition-colors"
+                    className="text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors"
                   >
-                    + Add Photo URL
+                    + Add URL
                   </button>
                 </div>
               </div>
