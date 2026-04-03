@@ -201,7 +201,11 @@ export default async function SpotDetailPage({
             {/* Main content */}
             <div className="md:col-span-2">
               <h2 className="text-lg font-bold mb-3">About {spot.nameEn}</h2>
-              <p className="text-gray-600 leading-relaxed">{spot.description}</p>
+              <div className="text-gray-600 leading-relaxed space-y-4">
+                {spot.description.split('\n\n').map((paragraph, i) => (
+                  <p key={i}>{paragraph}</p>
+                ))}
+              </div>
 
               {/* Photo gallery */}
               {spot.photoUrls && spot.photoUrls.length > 1 && (

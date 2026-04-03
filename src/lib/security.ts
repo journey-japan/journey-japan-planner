@@ -109,7 +109,7 @@ export function validateSpot(fields: {
   if (fields.nameJa.length > 200) return "Japanese name must be under 200 characters.";
 
   if (!fields.description.trim()) return "Description is required.";
-  if (fields.description.length > 2000) return "Description must be under 2000 characters.";
+  if (fields.description.length > 5000) return "Description must be under 5000 characters.";
 
   const validCategories = [
     "shrine", "temple", "museum", "park", "observation", "shopping",
