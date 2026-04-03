@@ -84,6 +84,18 @@ function SpotEditorContent() {
     }
   }, [user, profile, authLoading, isNew, router]);
 
+  // Cmd+S / Ctrl+S to save
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+        e.preventDefault();
+        handleSave();
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  });
+
   async function fetchSpot() {
     setLoading(true);
     const { data, error } = await supabase
