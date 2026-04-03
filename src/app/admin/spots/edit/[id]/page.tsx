@@ -67,6 +67,7 @@ function SpotEditorContent() {
   const [metaTitle, setMetaTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(!isNew);
   const [photoErrors, setPhotoErrors] = useState<Record<number, boolean>>({});
   const [uploading, setUploading] = useState(false);
@@ -200,7 +201,13 @@ function SpotEditorContent() {
       return;
     }
 
-    router.push(backUrl);
+    if (isNew) {
+      const data = await res.json();
+      router.push(`/admin/spots/edit/${data.id}`);
+    } else {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    }
   }
 
   async function handleGenerateDescription() {
@@ -379,7 +386,7 @@ function SpotEditorContent() {
               disabled={saving}
               className="text-sm font-medium text-white bg-accent hover:bg-accent-hover px-5 py-2.5 rounded-lg transition-colors disabled:opacity-50"
             >
-              {saving ? "Saving..." : "Save"}
+              {saving ? "Saving..." : saved ? "Saved ✓" : "Save"}
             </button>
           </div>
 
@@ -889,7 +896,7 @@ function SpotEditorContent() {
                   disabled={saving}
                   className="text-sm font-medium text-white bg-accent hover:bg-accent-hover px-6 py-2.5 rounded-lg transition-colors disabled:opacity-50"
                 >
-                  {saving ? "Saving..." : "Save Spot"}
+                  {saving ? "Saving..." : saved ? "Saved ✓" : "Save Spot"}
                 </button>
               </div>
             </div>
