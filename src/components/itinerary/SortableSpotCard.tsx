@@ -20,14 +20,15 @@ interface SortableSpotCardProps {
   onRemove?: (itemId: string) => void;
   onSpotClick?: (spot: Spot) => void;
   onNoteChange?: (itemId: string, note: string) => void;
-  onStartTimeChange?: (itemId: string, startTime: string) => void;
+  onTimeChange?: (itemId: string, startTime: string, endTime: string) => void;
 }
 
-export default function SortableSpotCard({ item, index, onRemove, onSpotClick, onNoteChange, onStartTimeChange }: SortableSpotCardProps) {
+export default function SortableSpotCard({ item, index, onRemove, onSpotClick, onNoteChange, onTimeChange }: SortableSpotCardProps) {
   const [isEditingNote, setIsEditingNote] = useState(false);
   const [noteText, setNoteText] = useState(item.note || "");
   const [isEditingTime, setIsEditingTime] = useState(false);
-  const [timeText, setTimeText] = useState(item.startTime || "");
+  const [startTimeText, setStartTimeText] = useState(item.startTime || "");
+  const [endTimeText, setEndTimeText] = useState(item.endTime || "");
   const {
     attributes,
     listeners,
@@ -111,8 +112,10 @@ export default function SortableSpotCard({ item, index, onRemove, onSpotClick, o
             }}
           >
             <span>🕐</span>
-            {item.startTime ? (
-              <span>{item.startTime}</span>
+            {item.startTime || item.endTime ? (
+              <span>
+                {item.startTime || "--:--"} — {item.endTime || "--:--"}
+              </span>
             ) : (
               <span className="text-gray-400">Set time</span>
             )}
@@ -207,38 +210,54 @@ export default function SortableSpotCard({ item, index, onRemove, onSpotClick, o
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="flex items-center gap-2">
-            <input
-              autoFocus
-              type="time"
-              value={timeText}
-              onChange={(e) => setTimeText(e.target.value)}
-              className="text-xs text-gray-700 bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5 outline-none focus:border-blue-300 focus:ring-1 focus:ring-blue-200"
-            />
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-1.5">
+              <label className="text-[10px] text-gray-400">From</label>
+              <input
+                autoFocus
+                type="time"
+                value={startTimeText}
+                onChange={(e) => setStartTimeText(e.target.value)}
+                className="text-xs text-gray-700 bg-blue-50 border border-blue-200 rounded-lg px-2.5 py-1.5 outline-none focus:border-blue-300 focus:ring-1 focus:ring-blue-200 w-[100px]"
+              />
+            </div>
+            <div className="flex items-center gap-1.5">
+              <label className="text-[10px] text-gray-400">To</label>
+              <input
+                type="time"
+                value={endTimeText}
+                onChange={(e) => setEndTimeText(e.target.value)}
+                className="text-xs text-gray-700 bg-blue-50 border border-blue-200 rounded-lg px-2.5 py-1.5 outline-none focus:border-blue-300 focus:ring-1 focus:ring-blue-200 w-[100px]"
+              />
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 mt-1.5">
             <button
-              className="text-[11px] text-gray-400 hover:text-gray-600 px-2 py-1 rounded-md hover:bg-gray-100 transition-colors"
+              className="text-[11px] text-white bg-accent hover:bg-accent-hover px-2.5 py-1 rounded-md transition-colors"
               onClick={() => {
-                setTimeText(item.startTime || "");
-                setIsEditingTime(false);
-              }}
-            >
-              Cancel
-            </button>
-            <button
-              className="text-[11px] text-white bg-accent hover:bg-accent-hover px-2 py-1 rounded-md transition-colors"
-              onClick={() => {
-                onStartTimeChange?.(item.id, timeText);
+                onTimeChange?.(item.id, startTimeText, endTimeText);
                 setIsEditingTime(false);
               }}
             >
               Set
             </button>
-            {item.startTime && (
+            <button
+              className="text-[11px] text-gray-400 hover:text-gray-600 px-2 py-1 rounded-md hover:bg-gray-100 transition-colors"
+              onClick={() => {
+                setStartTimeText(item.startTime || "");
+                setEndTimeText(item.endTime || "");
+                setIsEditingTime(false);
+              }}
+            >
+              Cancel
+            </button>
+            {(item.startTime || item.endTime) && (
               <button
                 className="text-[11px] text-red-400 hover:text-red-600 px-2 py-1 rounded-md hover:bg-red-50 transition-colors"
                 onClick={() => {
-                  setTimeText("");
-                  onStartTimeChange?.(item.id, "");
+                  setStartTimeText("");
+                  setEndTimeText("");
+                  onTimeChange?.(item.id, "", "");
                   setIsEditingTime(false);
                 }}
               >

@@ -283,15 +283,17 @@ export default function EditorPage() {
     [activeDay]
   );
 
-  // Update start time on a spot
-  const handleStartTimeChange = useCallback(
-    (itemId: string, startTime: string) => {
+  // Update start/end time on a spot
+  const handleTimeChange = useCallback(
+    (itemId: string, startTime: string, endTime: string) => {
       setDays((prev) => {
         const newDays = [...prev];
         newDays[activeDay] = {
           ...newDays[activeDay],
           items: newDays[activeDay].items.map((item) =>
-            item.id === itemId ? { ...item, startTime: startTime || undefined } : item
+            item.id === itemId
+              ? { ...item, startTime: startTime || undefined, endTime: endTime || undefined }
+              : item
           ),
         };
         return newDays;
@@ -551,7 +553,7 @@ export default function EditorPage() {
                         onRemove={handleRemoveSpot}
                         onSpotClick={setDetailSpot}
                         onNoteChange={handleNoteChange}
-                        onStartTimeChange={handleStartTimeChange}
+                        onTimeChange={handleTimeChange}
                       />
                     ))}
                   </SortableContext>

@@ -29,6 +29,7 @@ export interface ItineraryItem {
   spot: Spot;
   orderIndex: number;
   startTime?: string;      // "09:00"
+  endTime?: string;        // "10:30"
   durationMinutes?: number;
   note?: string;
   transportToNext?: Transport;
