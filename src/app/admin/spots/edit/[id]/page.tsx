@@ -70,6 +70,7 @@ function SpotEditorContent() {
   const [loading, setLoading] = useState(!isNew);
   const [photoErrors, setPhotoErrors] = useState<Record<number, boolean>>({});
   const [uploading, setUploading] = useState(false);
+  const [generatingDesc, setGeneratingDesc] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -200,6 +201,46 @@ function SpotEditorContent() {
     }
 
     router.push(backUrl);
+  }
+
+  async function handleGenerateDescription() {
+    if (!nameEn.trim()) {
+      alert("Enter the English name first.");
+      return;
+    }
+
+    setGeneratingDesc(true);
+
+    const session = await supabase.auth.getSession();
+    const token = session.data.session?.access_token;
+
+    const res = await fetch("/api/admin/spots/generate-description", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        name_en: nameEn,
+        name_ja: nameJa,
+        category,
+        area,
+        address,
+        admission_fee: admissionFee ? parseFloat(admissionFee) : null,
+        avg_duration_min: avgDurationMin ? parseInt(avgDurationMin) : null,
+        existing_description: description,
+      }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      setDescription(data.description);
+    } else {
+      const data = await res.json();
+      alert(`Error: ${data.error}`);
+    }
+
+    setGeneratingDesc(false);
   }
 
   async function handleDelete() {
@@ -380,14 +421,27 @@ function SpotEditorContent() {
                 </div>
               </div>
               <div className="mt-4">
-                <label className="block text-xs font-medium text-gray-500 mb-1">
-                  Description *
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-medium text-gray-500">
+                    Description *
+                  </label>
+                  <button
+                    onClick={handleGenerateDescription}
+                    disabled={generatingDesc}
+                    className={`text-xs font-medium transition-colors ${
+                      generatingDesc
+                        ? "text-gray-400"
+                        : "text-accent hover:text-accent-hover"
+                    }`}
+                  >
+                    {generatingDesc ? "Generating..." : "AI Generate"}
+                  </button>
+                </div>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="A brief description of this spot..."
-                  rows={3}
+                  rows={5}
                   className={`${inputClass} resize-none`}
                 />
                 <p className={`text-xs mt-1 ${
