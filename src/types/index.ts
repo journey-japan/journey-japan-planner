@@ -16,6 +16,9 @@ export interface Spot {
   admissionFee?: number;
   admissionFeeCurrency?: string;
   avgDurationMin: number;
+  metaTitle?: string;
+  metaDescription?: string;
+  slug?: string;
 }
 
 export interface ItineraryItem {

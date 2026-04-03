@@ -68,6 +68,9 @@ export async function PUT(
       avg_duration_min: body.avg_duration_min,
       google_place_id: body.google_place_id?.trim() || null,
       opening_hours: body.opening_hours || null,
+      meta_title: body.meta_title?.trim() || null,
+      meta_description: body.meta_description?.trim() || null,
+      slug: body.slug?.trim() || null,
     })
     .eq("id", id);
 

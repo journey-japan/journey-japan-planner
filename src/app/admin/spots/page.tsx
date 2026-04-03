@@ -26,8 +26,27 @@ function mapSpot(row: Record<string, unknown>): Spot {
     admissionFee: row.admission_fee as number | undefined,
     admissionFeeCurrency: row.admission_fee_currency as string | undefined,
     avgDurationMin: row.avg_duration_min as number,
+    metaTitle: row.meta_title as string | undefined,
+    metaDescription: row.meta_description as string | undefined,
+    slug: row.slug as string | undefined,
   };
 }
+
+function getSeoQuality(spot: Spot): "green" | "yellow" | "red" {
+  const descLen = (spot.description || "").length;
+  const photoCount = spot.photoUrls?.length || 0;
+  const hasName = !!spot.nameEn;
+
+  if (descLen < 50 || photoCount === 0) return "red";
+  if (descLen >= 120 && photoCount >= 2 && hasName) return "green";
+  return "yellow";
+}
+
+const SEO_DOT_COLORS = {
+  green: "bg-green-500",
+  yellow: "bg-amber-400",
+  red: "bg-red-500",
+} as const;
 
 export default function AdminSpotsPage() {
   return (
@@ -304,6 +323,7 @@ function AdminSpotsContent() {
                       <span className="text-[10px] text-gray-400">
                         ~{spot.avgDurationMin} min
                       </span>
+                      <span className={`ml-auto w-2 h-2 rounded-full ${SEO_DOT_COLORS[getSeoQuality(spot)]}`} title={`SEO: ${getSeoQuality(spot)}`} />
                     </div>
                   </div>
                 </Link>
@@ -334,6 +354,9 @@ function AdminSpotsContent() {
                     </th>
                     <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 hidden lg:table-cell">
                       Duration
+                    </th>
+                    <th className="text-center text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 hidden lg:table-cell">
+                      SEO
                     </th>
                   </tr>
                 </thead>
@@ -391,6 +414,9 @@ function AdminSpotsContent() {
                         <span className="text-xs text-gray-400">
                           ~{spot.avgDurationMin} min
                         </span>
+                      </td>
+                      <td className="px-4 py-3 text-center hidden lg:table-cell">
+                        <span className={`inline-block w-2.5 h-2.5 rounded-full ${SEO_DOT_COLORS[getSeoQuality(spot)]}`} title={`SEO: ${getSeoQuality(spot)}`} />
                       </td>
                     </tr>
                   ))}

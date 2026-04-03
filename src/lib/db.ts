@@ -473,6 +473,9 @@ function mapSpot(row: Record<string, unknown>): Spot {
     admissionFee: row.admission_fee as number | undefined,
     admissionFeeCurrency: row.admission_fee_currency as string | undefined,
     avgDurationMin: row.avg_duration_min as number,
+    metaTitle: row.meta_title as string | undefined,
+    metaDescription: row.meta_description as string | undefined,
+    slug: row.slug as string | undefined,
   };
 }
 

@@ -11,6 +11,16 @@ import { AREAS, SPOT_CATEGORIES } from "@/types";
 import type { Area, SpotCategory } from "@/types";
 import { validateSpot } from "@/lib/security";
 
+function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 80);
+}
+
 export default function SpotEditorPage() {
   return (
     <Suspense fallback={
@@ -52,6 +62,10 @@ function SpotEditorContent() {
   const [admissionFeeCurrency, setAdmissionFeeCurrency] = useState("JPY");
   const [avgDurationMin, setAvgDurationMin] = useState("");
   const [openingHoursJson, setOpeningHoursJson] = useState("");
+  const [slug, setSlug] = useState("");
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+  const [metaTitle, setMetaTitle] = useState("");
+  const [metaDescription, setMetaDescription] = useState("");
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(!isNew);
   const [photoErrors, setPhotoErrors] = useState<Record<number, boolean>>({});
@@ -98,6 +112,10 @@ function SpotEditorContent() {
     setOpeningHoursJson(
       data.opening_hours ? JSON.stringify(data.opening_hours, null, 2) : ""
     );
+    setSlug(data.slug || "");
+    setMetaTitle(data.meta_title || "");
+    setMetaDescription(data.meta_description || "");
+    if (data.slug) setSlugManuallyEdited(true);
     setLoading(false);
   }
 
@@ -156,6 +174,9 @@ function SpotEditorContent() {
       admission_fee_currency: admissionFeeCurrency,
       avg_duration_min: durationNum,
       opening_hours: openingHours,
+      meta_title: metaTitle || null,
+      meta_description: metaDescription || null,
+      slug: slug || null,
     };
 
     const url = isNew ? "/api/admin/spots" : `/api/admin/spots/${id}`;
@@ -335,7 +356,12 @@ function SpotEditorContent() {
                   <input
                     type="text"
                     value={nameEn}
-                    onChange={(e) => setNameEn(e.target.value)}
+                    onChange={(e) => {
+                      setNameEn(e.target.value);
+                      if (!slugManuallyEdited) {
+                        setSlug(generateSlug(e.target.value));
+                      }
+                    }}
                     placeholder="Meiji Jingu Shrine"
                     className={inputClass}
                   />
@@ -364,6 +390,20 @@ function SpotEditorContent() {
                   rows={3}
                   className={`${inputClass} resize-none`}
                 />
+                <p className={`text-xs mt-1 ${
+                  description.length < 80
+                    ? "text-red-500"
+                    : description.length < 120
+                    ? "text-amber-500"
+                    : "text-green-600"
+                }`}>
+                  {description.length} chars
+                  {description.length < 80
+                    ? " — Too short for SEO"
+                    : description.length < 120
+                    ? " — Acceptable"
+                    : " — Good"}
+                </p>
               </div>
             </div>
 
@@ -577,6 +617,103 @@ function SpotEditorContent() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* SEO Settings */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <h2 className="text-sm font-semibold text-gray-700 mb-4">
+                SEO Settings
+              </h2>
+
+              {/* Slug */}
+              <div className="mb-4">
+                <label className="block text-xs font-medium text-gray-500 mb-1">
+                  URL Slug
+                </label>
+                <input
+                  type="text"
+                  value={slug}
+                  onChange={(e) => {
+                    setSlug(generateSlug(e.target.value));
+                    setSlugManuallyEdited(true);
+                  }}
+                  placeholder="meiji-jingu-shrine"
+                  className={inputClass}
+                />
+                <p className="text-xs text-gray-400 mt-1">
+                  Preview: /spots/{slug || "..."}
+                </p>
+              </div>
+
+              {/* Meta Title */}
+              <div className="mb-4">
+                <label className="block text-xs font-medium text-gray-500 mb-1">
+                  Meta Title
+                </label>
+                <input
+                  type="text"
+                  value={metaTitle}
+                  onChange={(e) => setMetaTitle(e.target.value)}
+                  placeholder={nameEn || "Page title for search engines"}
+                  className={inputClass}
+                />
+                <p className={`text-xs mt-1 ${
+                  metaTitle.length > 60 ? "text-amber-500" : "text-gray-400"
+                }`}>
+                  {metaTitle.length}/60 chars
+                  {metaTitle.length > 60 ? " — Consider shortening" : ""}
+                </p>
+              </div>
+
+              {/* Meta Description */}
+              <div className="mb-4">
+                <label className="block text-xs font-medium text-gray-500 mb-1">
+                  Meta Description
+                </label>
+                <textarea
+                  value={metaDescription}
+                  onChange={(e) => setMetaDescription(e.target.value)}
+                  placeholder="A concise summary for search engine results..."
+                  rows={2}
+                  className={`${inputClass} resize-none`}
+                />
+                <p className={`text-xs mt-1 ${
+                  metaDescription.length === 0
+                    ? "text-gray-400"
+                    : metaDescription.length < 120
+                    ? "text-amber-500"
+                    : metaDescription.length <= 160
+                    ? "text-green-600"
+                    : "text-amber-500"
+                }`}>
+                  {metaDescription.length}/160 chars
+                  {metaDescription.length > 0 && metaDescription.length < 120
+                    ? " — Too short"
+                    : metaDescription.length > 160
+                    ? " — Consider shortening"
+                    : metaDescription.length >= 120
+                    ? " — Good"
+                    : " — Recommended: 120-160 chars"}
+                </p>
+              </div>
+
+              {/* Google Search Preview */}
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-2">
+                  Google Search Preview
+                </label>
+                <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                  <p className="text-lg text-blue-700 leading-snug truncate">
+                    {metaTitle || nameEn || "Spot Title"}
+                  </p>
+                  <p className="text-sm text-green-700 mt-0.5 truncate">
+                    plan.journeyjpn.com/spots/{slug || "..."}
+                  </p>
+                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                    {metaDescription || (description ? description.slice(0, 160) : "No description available.")}
+                  </p>
+                </div>
               </div>
             </div>
 
