@@ -142,7 +142,7 @@ export default function DraggableRecommendedCard({
           className={`absolute top-1.5 left-1.5 w-6 h-6 rounded-full flex items-center justify-center text-xs transition-all ${
             favorited
               ? "text-red-500 bg-red-50"
-              : "text-gray-300 bg-white/80 hover:text-red-400 opacity-0 group-hover:opacity-100"
+              : "text-gray-300 bg-white/80 hover:text-red-400"
           }`}
         >
           {favorited ? "♥" : "♡"}
