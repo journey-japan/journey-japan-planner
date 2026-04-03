@@ -157,7 +157,8 @@ export default function DraggableRecommendedCard({
         )}
         {!isAdded && (
           <div className="absolute bottom-2 left-2 bg-accent/80 text-white text-[10px] font-medium px-2 py-0.5 rounded">
-            ← Drag to add
+            <span className="hidden md:inline">← Drag to add</span>
+            <span className="md:hidden">Tap + to add</span>
           </div>
         )}
       </div>
@@ -181,9 +182,6 @@ export default function DraggableRecommendedCard({
                 {spot.nameEn}
               </div>
             )}
-            <div className="text-[11px] text-gray-400 mt-0.5">
-              {spot.nameJa}
-            </div>
           </div>
           <button
             onClick={(e) => {

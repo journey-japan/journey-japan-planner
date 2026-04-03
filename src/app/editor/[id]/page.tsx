@@ -597,7 +597,7 @@ export default function EditorPage() {
           </div>{/* Close mobile top row wrapper */}
 
           {/* MAP AREA (right column on desktop, bottom on mobile) */}
-          <div className="h-[40vh] md:h-auto flex-shrink-0 md:flex-shrink">
+          <div className="h-[25vh] md:h-auto flex-shrink-0 md:flex-shrink">
             {user ? (
               <GoogleMap items={items} />
             ) : (
