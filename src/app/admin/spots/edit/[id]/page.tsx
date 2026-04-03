@@ -622,9 +622,48 @@ function SpotEditorContent() {
 
             {/* SEO Settings */}
             <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h2 className="text-sm font-semibold text-gray-700 mb-4">
-                SEO Settings
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-sm font-semibold text-gray-700">
+                  SEO Settings
+                </h2>
+                <button
+                  onClick={() => {
+                    if (!nameEn.trim()) {
+                      alert("Enter the English name first.");
+                      return;
+                    }
+                    const areaLabel = area.charAt(0).toUpperCase() + area.slice(1);
+                    // Slug
+                    setSlug(generateSlug(nameEn));
+                    setSlugManuallyEdited(true);
+                    // Meta Title (under 60 chars)
+                    const fullTitle = `${nameEn.trim()} — ${areaLabel} Guide | Journey Japan`;
+                    setMetaTitle(
+                      fullTitle.length <= 60
+                        ? fullTitle
+                        : `${nameEn.trim()} | Journey Japan`
+                    );
+                    // Meta Description (120-160 chars)
+                    const desc = description.trim();
+                    if (desc.length >= 120 && desc.length <= 160) {
+                      setMetaDescription(desc);
+                    } else if (desc.length > 160) {
+                      // Truncate at last sentence/word boundary before 157 chars + "..."
+                      const truncated = desc.slice(0, 157);
+                      const lastSpace = truncated.lastIndexOf(" ");
+                      setMetaDescription(truncated.slice(0, lastSpace > 100 ? lastSpace : 157) + "...");
+                    } else if (desc) {
+                      // Short description — append area context
+                      const suffix = ` Plan your ${areaLabel} visit with Journey Japan.`;
+                      const combined = desc.endsWith(".") ? desc + suffix : desc + "." + suffix;
+                      setMetaDescription(combined.length <= 160 ? combined : combined.slice(0, 157) + "...");
+                    }
+                  }}
+                  className="text-xs font-medium text-accent hover:text-accent-hover transition-colors"
+                >
+                  Auto-generate
+                </button>
+              </div>
 
               {/* Slug */}
               <div className="mb-4">
