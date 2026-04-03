@@ -20,11 +20,14 @@ interface SortableSpotCardProps {
   onRemove?: (itemId: string) => void;
   onSpotClick?: (spot: Spot) => void;
   onNoteChange?: (itemId: string, note: string) => void;
+  onStartTimeChange?: (itemId: string, startTime: string) => void;
 }
 
-export default function SortableSpotCard({ item, index, onRemove, onSpotClick, onNoteChange }: SortableSpotCardProps) {
+export default function SortableSpotCard({ item, index, onRemove, onSpotClick, onNoteChange, onStartTimeChange }: SortableSpotCardProps) {
   const [isEditingNote, setIsEditingNote] = useState(false);
   const [noteText, setNoteText] = useState(item.note || "");
+  const [isEditingTime, setIsEditingTime] = useState(false);
+  const [timeText, setTimeText] = useState(item.startTime || "");
   const {
     attributes,
     listeners,
@@ -97,14 +100,23 @@ export default function SortableSpotCard({ item, index, onRemove, onSpotClick, o
             {item.spot.nameEn}
           </div>
           <div className="text-xs text-gray-400 mt-0.5">
-            {item.spot.category.charAt(0).toUpperCase() + item.spot.category.slice(1)} ·{" "}
-            {item.spot.area.charAt(0).toUpperCase() + item.spot.area.slice(1)}
+            {item.spot.category.charAt(0).toUpperCase() + item.spot.category.slice(1)} · ~{item.spot.avgDurationMin} min
           </div>
-          {item.startTime && (
-            <div className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded inline-block mt-1">
-              {item.startTime} — {item.durationMinutes} min
-            </div>
-          )}
+          <div
+            className="inline-flex items-center gap-1.5 mt-1 text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded cursor-pointer hover:bg-gray-200 transition-colors"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsEditingTime(true);
+            }}
+          >
+            <span>🕐</span>
+            {item.startTime ? (
+              <span>{item.startTime}</span>
+            ) : (
+              <span className="text-gray-400">Set time</span>
+            )}
+          </div>
         </div>
 
         {/* Action buttons (visible on hover) */}
@@ -184,6 +196,55 @@ export default function SortableSpotCard({ item, index, onRemove, onSpotClick, o
             >
               Save
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Time edit */}
+      {isEditingTime && (
+        <div
+          className="ml-[70px] -mt-1 mb-2"
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex items-center gap-2">
+            <input
+              autoFocus
+              type="time"
+              value={timeText}
+              onChange={(e) => setTimeText(e.target.value)}
+              className="text-xs text-gray-700 bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5 outline-none focus:border-blue-300 focus:ring-1 focus:ring-blue-200"
+            />
+            <button
+              className="text-[11px] text-gray-400 hover:text-gray-600 px-2 py-1 rounded-md hover:bg-gray-100 transition-colors"
+              onClick={() => {
+                setTimeText(item.startTime || "");
+                setIsEditingTime(false);
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              className="text-[11px] text-white bg-accent hover:bg-accent-hover px-2 py-1 rounded-md transition-colors"
+              onClick={() => {
+                onStartTimeChange?.(item.id, timeText);
+                setIsEditingTime(false);
+              }}
+            >
+              Set
+            </button>
+            {item.startTime && (
+              <button
+                className="text-[11px] text-red-400 hover:text-red-600 px-2 py-1 rounded-md hover:bg-red-50 transition-colors"
+                onClick={() => {
+                  setTimeText("");
+                  onStartTimeChange?.(item.id, "");
+                  setIsEditingTime(false);
+                }}
+              >
+                Clear
+              </button>
+            )}
           </div>
         </div>
       )}
