@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import Image from "next/image";
+import Link from "next/link";
 import { ItineraryItem, Spot } from "@/types";
+import DrumTimePicker from "@/components/ui/DrumTimePicker";
 
 const TRANSPORT_ICONS: Record<string, string> = {
   walk: "🚶",
@@ -90,16 +92,28 @@ export default function SortableSpotCard({ item, index, onRemove, onSpotClick, o
 
         {/* Spot info */}
         <div className="flex-1 min-w-0">
-          <div
-            className="text-sm font-semibold leading-tight cursor-pointer hover:text-accent transition-colors"
-            onPointerDown={(e) => e.stopPropagation()}
-            onClick={(e) => {
-              e.stopPropagation();
-              onSpotClick?.(item.spot);
-            }}
-          >
-            {item.spot.nameEn}
-          </div>
+          {item.spot.slug ? (
+            <Link
+              href={`/spots/${item.spot.slug}`}
+              target="_blank"
+              className="text-sm font-semibold leading-tight hover:text-accent transition-colors block"
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {item.spot.nameEn}
+            </Link>
+          ) : (
+            <div
+              className="text-sm font-semibold leading-tight cursor-pointer hover:text-accent transition-colors"
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                onSpotClick?.(item.spot);
+              }}
+            >
+              {item.spot.nameEn}
+            </div>
+          )}
           <div className="text-xs text-gray-400 mt-0.5">
             {item.spot.category.charAt(0).toUpperCase() + item.spot.category.slice(1)} · ~{item.spot.avgDurationMin} min
           </div>
@@ -210,28 +224,20 @@ export default function SortableSpotCard({ item, index, onRemove, onSpotClick, o
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center gap-1.5">
-              <label className="text-[10px] text-gray-400">From</label>
-              <input
-                autoFocus
-                type="time"
-                value={startTimeText}
-                onChange={(e) => setStartTimeText(e.target.value)}
-                className="text-xs text-gray-700 bg-blue-50 border border-blue-200 rounded-lg px-2.5 py-1.5 outline-none focus:border-blue-300 focus:ring-1 focus:ring-blue-200 w-[100px]"
-              />
-            </div>
-            <div className="flex items-center gap-1.5">
-              <label className="text-[10px] text-gray-400">To</label>
-              <input
-                type="time"
-                value={endTimeText}
-                onChange={(e) => setEndTimeText(e.target.value)}
-                className="text-xs text-gray-700 bg-blue-50 border border-blue-200 rounded-lg px-2.5 py-1.5 outline-none focus:border-blue-300 focus:ring-1 focus:ring-blue-200 w-[100px]"
-              />
-            </div>
+          <div className="flex items-end gap-3">
+            <DrumTimePicker
+              label="From"
+              value={startTimeText || "09:00"}
+              onChange={(v) => setStartTimeText(v)}
+            />
+            <span className="text-gray-300 text-sm pb-[70px]">—</span>
+            <DrumTimePicker
+              label="To"
+              value={endTimeText || "10:00"}
+              onChange={(v) => setEndTimeText(v)}
+            />
           </div>
-          <div className="flex items-center gap-1.5 mt-1.5">
+          <div className="flex items-center gap-1.5 mt-2">
             <button
               className="text-[11px] text-white bg-accent hover:bg-accent-hover px-2.5 py-1 rounded-md transition-colors"
               onClick={() => {
