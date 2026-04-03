@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { Spot } from "@/types";
 import { formatAdmissionFee } from "@/lib/format";
+import SpotDetailModal from "@/components/itinerary/SpotDetailModal";
 
 type FilterTab =
   | "all"
@@ -64,11 +65,32 @@ interface SpotGridProps {
 
 export default function SpotGrid({ spots }: SpotGridProps) {
   const [activeFilter, setActiveFilter] = useState<FilterTab>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedSpot, setSelectedSpot] = useState<Spot | null>(null);
 
   const activeCategories = FILTER_TABS.find((t) => t.value === activeFilter)?.categories ?? [];
 
   return (
     <div>
+      {/* Search */}
+      <div className="flex items-center gap-2 bg-gray-100 rounded-xl px-4 py-2.5 mb-4">
+        <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.35-4.35" />
+        </svg>
+        <input
+          className="flex-1 bg-transparent outline-none text-sm text-gray-700 placeholder-gray-400"
+          placeholder="Search spots... (e.g. Meiji, ramen, Shibuya)"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        {searchQuery && (
+          <button onClick={() => setSearchQuery("")} className="text-gray-400 hover:text-gray-600 text-sm">
+            ✕
+          </button>
+        )}
+      </div>
+
       {/* Filter tabs */}
       <div className="flex gap-2 overflow-x-auto pb-2 mb-6 -mx-1 px-1">
         {FILTER_TABS.map((tab) => {
@@ -101,14 +123,22 @@ export default function SpotGrid({ spots }: SpotGridProps) {
       {/* Spot cards grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
         {spots.map((spot) => {
-          const matches =
+          const categoryMatch =
             activeFilter === "all" || activeCategories.includes(spot.category);
+          const q = searchQuery.toLowerCase();
+          const searchMatch = !q ||
+            spot.nameEn.toLowerCase().includes(q) ||
+            spot.nameJa.includes(searchQuery) ||
+            spot.description.toLowerCase().includes(q) ||
+            spot.address.toLowerCase().includes(q);
+          const matches = categoryMatch && searchMatch;
           const fee = formatAdmissionFee(spot.admissionFee, spot.admissionFeeCurrency);
 
           return (
             <article
               key={spot.id}
-              className={`rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow bg-white ${
+              onClick={() => setSelectedSpot(spot)}
+              className={`rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow bg-white cursor-pointer ${
                 matches ? "" : "hidden"
               }`}
             >
@@ -165,6 +195,8 @@ export default function SpotGrid({ spots }: SpotGridProps) {
           );
         })}
       </div>
+
+      <SpotDetailModal spot={selectedSpot} onClose={() => setSelectedSpot(null)} />
     </div>
   );
 }
