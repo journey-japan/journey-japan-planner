@@ -99,7 +99,16 @@ interface RecommendedSpotsProps {
 export default function RecommendedSpots({ spots, onAddSpot, usedSpotIds }: RecommendedSpotsProps) {
   const { user } = useAuth();
   const hasFeatured = spots.some((s) => s.isFeatured);
-  const [activeFilter, setActiveFilter] = useState<FilterTab>(hasFeatured ? "popular" : "all");
+  const [activeFilter, setActiveFilter] = useState<FilterTab>("popular");
+  const [initialFilterSet, setInitialFilterSet] = useState(false);
+
+  // Set default filter to "popular" once spots load
+  useEffect(() => {
+    if (!initialFilterSet && spots.length > 0) {
+      setActiveFilter(hasFeatured ? "popular" : "all");
+      setInitialFilterSet(true);
+    }
+  }, [spots, hasFeatured, initialFilterSet]);
   const [searchQuery, setSearchQuery] = useState("");
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
 
@@ -176,7 +185,10 @@ export default function RecommendedSpots({ spots, onAddSpot, usedSpotIds }: Reco
       </div>
 
       {/* Filter tabs */}
-      <div className="flex gap-1 px-3 py-2.5 border-b border-gray-100 overflow-x-auto flex-shrink-0">
+      <div className="relative border-b border-gray-100 flex-shrink-0">
+        {/* Fade hint for scroll */}
+        <div className="absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+      <div className="flex gap-1 px-3 py-2.5 overflow-x-auto scrollbar-hide">
         {FILTER_TABS.map((tab) => {
           if (tab.value === "popular" && !hasFeatured) return null;
           if (tab.value === "favorites" && !hasFavorites) return null;
@@ -198,6 +210,7 @@ export default function RecommendedSpots({ spots, onAddSpot, usedSpotIds }: Reco
           </button>
           );
         })}
+      </div>
       </div>
 
       {/* Spot cards */}

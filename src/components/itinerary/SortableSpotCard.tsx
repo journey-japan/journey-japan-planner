@@ -50,7 +50,7 @@ export default function SortableSpotCard({ item, index, onRemove, onSpotClick, o
       <div
         ref={setNodeRef}
         style={style}
-        className={`flex gap-3 p-3 border rounded-lg mb-2 bg-white cursor-grab active:cursor-grabbing transition-all group ${
+        className={`border rounded-lg mb-2 bg-white cursor-grab active:cursor-grabbing transition-all group ${
           isDragging
             ? "border-accent bg-accent-light opacity-50 shadow-lg"
             : "border-gray-200 hover:border-accent hover:shadow-sm"
@@ -58,86 +58,71 @@ export default function SortableSpotCard({ item, index, onRemove, onSpotClick, o
         {...attributes}
         {...listeners}
       >
-        {/* Drag handle */}
-        <div className="flex flex-col justify-center text-gray-300 text-sm select-none">
-          ⠿
-        </div>
-
-        {/* Thumbnail + Number badge (click to view details) */}
-        <div
-          className="relative w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 cursor-pointer ring-0 hover:ring-2 hover:ring-accent/40 transition-all"
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={(e) => {
-            e.stopPropagation();
-            onSpotClick?.(item.spot);
-          }}
-        >
-          {item.spot.photoUrls?.[0] ? (
-            <Image
-              src={item.spot.photoUrls[0]}
-              alt={item.spot.nameEn}
-              fill
-              className="object-cover"
-              sizes="56px"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-gray-300 text-lg">
-              📍
-            </div>
-          )}
-          <div className="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-accent text-white flex items-center justify-center text-[10px] font-bold shadow-sm">
-            {index + 1}
+        {/* Top row: drag handle + thumbnail + name + actions */}
+        <div className="flex gap-2 p-2 pb-0 items-start">
+          {/* Drag handle */}
+          <div className="flex flex-col justify-center text-gray-300 text-sm select-none pt-1">
+            ⠿
           </div>
-        </div>
 
-        {/* Spot info */}
-        <div className="flex-1 min-w-0">
-          {item.spot.slug ? (
-            <Link
-              href={`/spots/${item.spot.slug}`}
-              target="_blank"
-              className="text-sm font-semibold leading-tight hover:text-accent transition-colors block"
-              onPointerDown={(e) => e.stopPropagation()}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {item.spot.nameEn}
-            </Link>
-          ) : (
-            <div
-              className="text-sm font-semibold leading-tight cursor-pointer hover:text-accent transition-colors"
-              onPointerDown={(e) => e.stopPropagation()}
-              onClick={(e) => {
-                e.stopPropagation();
-                onSpotClick?.(item.spot);
-              }}
-            >
-              {item.spot.nameEn}
-            </div>
-          )}
-          <div className="text-xs text-gray-400 mt-0.5">
-            {item.spot.category.charAt(0).toUpperCase() + item.spot.category.slice(1)} · ~{item.spot.avgDurationMin} min
-          </div>
+          {/* Thumbnail + Number badge */}
           <div
-            className="inline-flex items-center gap-1.5 mt-1 text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded cursor-pointer hover:bg-gray-200 transition-colors"
+            className="relative w-10 h-10 md:w-12 md:h-12 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 cursor-pointer ring-0 hover:ring-2 hover:ring-accent/40 transition-all"
             onPointerDown={(e) => e.stopPropagation()}
             onClick={(e) => {
               e.stopPropagation();
-              setIsEditingTime(true);
+              onSpotClick?.(item.spot);
             }}
           >
-            <span>🕐</span>
-            {item.startTime || item.endTime ? (
-              <span>
-                {item.startTime || "--:--"} — {item.endTime || "--:--"}
-              </span>
+            {item.spot.photoUrls?.[0] ? (
+              <Image
+                src={item.spot.photoUrls[0]}
+                alt={item.spot.nameEn}
+                fill
+                className="object-cover"
+                sizes="48px"
+              />
             ) : (
-              <span className="text-gray-400">Set time</span>
+              <div className="w-full h-full flex items-center justify-center text-gray-300 text-sm">
+                📍
+              </div>
             )}
+            <div className="absolute top-0 left-0 w-4 h-4 rounded-br-md bg-accent text-white flex items-center justify-center text-[9px] font-bold">
+              {index + 1}
+            </div>
           </div>
-        </div>
 
-        {/* Action buttons (visible on hover / always on mobile) */}
-        <div className="flex flex-col justify-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+          {/* Name */}
+          <div className="flex-1 min-w-0 pt-0.5">
+            {item.spot.slug ? (
+              <Link
+                href={`/spots/${item.spot.slug}`}
+                target="_blank"
+                className="text-xs md:text-sm font-semibold leading-tight hover:text-accent transition-colors block truncate"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {item.spot.nameEn}
+              </Link>
+            ) : (
+              <div
+                className="text-xs md:text-sm font-semibold leading-tight cursor-pointer hover:text-accent transition-colors truncate"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSpotClick?.(item.spot);
+                }}
+              >
+                {item.spot.nameEn}
+              </div>
+            )}
+            <div className="text-[10px] md:text-xs text-gray-400 mt-0.5 truncate">
+              {item.spot.category.charAt(0).toUpperCase() + item.spot.category.slice(1)} · ~{item.spot.avgDurationMin} min
+            </div>
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex items-center gap-0.5 flex-shrink-0">
           <button
             className={`w-7 h-7 rounded-md flex items-center justify-center text-sm transition-colors ${
               item.note || isEditingNote
@@ -164,12 +149,34 @@ export default function SortableSpotCard({ item, index, onRemove, onSpotClick, o
             ×
           </button>
         </div>
+        </div>
+
+        {/* Time row */}
+        <div className="px-2 pb-2 pt-1 ml-7 md:ml-8">
+          <div
+            className="inline-flex items-center gap-1.5 text-[10px] md:text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded cursor-pointer hover:bg-gray-200 transition-colors"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsEditingTime(true);
+            }}
+          >
+            <span>🕐</span>
+            {item.startTime || item.endTime ? (
+              <span>
+                {item.startTime || "--:--"} — {item.endTime || "--:--"}
+              </span>
+            ) : (
+              <span className="text-gray-400">Set time</span>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Note display / edit */}
       {(item.note && !isEditingNote) && (
         <div
-          className="ml-[70px] -mt-1 mb-2 px-3 py-1.5 bg-amber-50 border border-amber-100 rounded-lg cursor-pointer hover:bg-amber-100/60 transition-colors"
+          className="ml-9 md:ml-10 -mt-1 mb-2 px-3 py-1.5 bg-amber-50 border border-amber-100 rounded-lg cursor-pointer hover:bg-amber-100/60 transition-colors"
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => {
             e.stopPropagation();
@@ -182,7 +189,7 @@ export default function SortableSpotCard({ item, index, onRemove, onSpotClick, o
 
       {isEditingNote && (
         <div
-          className="ml-[70px] -mt-1 mb-2"
+          className="ml-9 md:ml-10 -mt-1 mb-2"
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
         >
@@ -220,7 +227,7 @@ export default function SortableSpotCard({ item, index, onRemove, onSpotClick, o
       {/* Time edit */}
       {isEditingTime && (
         <div
-          className="ml-[70px] -mt-1 mb-2"
+          className="ml-9 md:ml-10 -mt-1 mb-2"
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
         >
