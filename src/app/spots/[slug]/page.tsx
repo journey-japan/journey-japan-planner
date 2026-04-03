@@ -6,6 +6,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { getSpotBySlug, getSpots, getSpotUsageCounts, getPopularSpots } from "@/lib/db";
 import { formatAdmissionFee } from "@/lib/format";
+import SpotFavoriteWrapper from "@/components/spot/SpotFavoriteWrapper";
 
 const SITE_URL = "https://plan.journeyjpn.com";
 
@@ -188,6 +189,9 @@ export default async function SpotDetailPage({
                 <span>🏆</span> #{rank} in {areaLabel}
               </span>
             )}
+            <span className="ml-auto">
+              <SpotFavoriteWrapper spotId={spot.id} />
+            </span>
           </div>
         </section>
 

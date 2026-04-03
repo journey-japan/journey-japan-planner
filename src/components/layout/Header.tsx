@@ -124,6 +124,13 @@ export default function Header() {
                     >
                       My Itineraries
                     </Link>
+                    <Link
+                      href="/favorites"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      ♥ My Favorites
+                    </Link>
                     {profile?.is_pro && (
                       <div className="border-t border-gray-100 mt-1 pt-1">
                         <Link

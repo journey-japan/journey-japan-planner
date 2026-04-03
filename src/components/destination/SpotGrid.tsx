@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Spot } from "@/types";
 import { formatAdmissionFee } from "@/lib/format";
+import { useAuth } from "@/lib/auth-context";
+import { getUserFavoriteSpotIds } from "@/lib/db";
+import FavoriteButton from "@/components/spot/FavoriteButton";
 
 type FilterTab =
   | "all"
@@ -64,8 +67,16 @@ interface SpotGridProps {
 }
 
 export default function SpotGrid({ spots }: SpotGridProps) {
+  const { user } = useAuth();
   const [activeFilter, setActiveFilter] = useState<FilterTab>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (user) {
+      getUserFavoriteSpotIds(user.id).then((ids) => setFavoriteIds(new Set(ids)));
+    }
+  }, [user]);
 
   const activeCategories = FILTER_TABS.find((t) => t.value === activeFilter)?.categories ?? [];
 
@@ -162,9 +173,26 @@ export default function SpotGrid({ spots }: SpotGridProps) {
                 </span>
                 {/* Fee badge */}
                 {fee && (
-                  <span className="absolute top-3 right-3 text-xs font-medium text-gray-700 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-full">
+                  <span className={`absolute top-3 text-xs font-medium text-gray-700 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-full ${user ? "right-12" : "right-3"}`}>
                     {fee}
                   </span>
+                )}
+                {/* Favorite button */}
+                {user && (
+                  <div className="absolute top-2 right-2">
+                    <FavoriteButton
+                      spotId={spot.id}
+                      isFavorited={favoriteIds.has(spot.id)}
+                      size="sm"
+                      onToggle={(fav) => {
+                        setFavoriteIds((prev) => {
+                          const next = new Set(prev);
+                          fav ? next.add(spot.id) : next.delete(spot.id);
+                          return next;
+                        });
+                      }}
+                    />
+                  </div>
                 )}
               </div>
 

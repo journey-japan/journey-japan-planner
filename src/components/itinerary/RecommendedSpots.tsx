@@ -1,13 +1,16 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Spot } from "@/types";
+import { useAuth } from "@/lib/auth-context";
+import { getUserFavoriteSpotIds } from "@/lib/db";
 import DraggableRecommendedCard from "./DraggableRecommendedCard";
 
-type FilterTab = "popular" | "all" | "shrines-temples" | "museums" | "food" | "shopping" | "entertainment" | "nature" | "landmarks";
+type FilterTab = "popular" | "favorites" | "all" | "shrines-temples" | "museums" | "food" | "shopping" | "entertainment" | "nature" | "landmarks";
 
 const FILTER_TABS: { value: FilterTab; label: string }[] = [
   { value: "popular", label: "Popular" },
+  { value: "favorites", label: "Favorites" },
   { value: "all", label: "All" },
   { value: "shrines-temples", label: "Shrines & Temples" },
   { value: "museums", label: "Museums" },
@@ -20,6 +23,7 @@ const FILTER_TABS: { value: FilterTab; label: string }[] = [
 
 const FILTER_MAP: Record<FilterTab, string[]> = {
   popular: [],
+  favorites: [],
   all: [],
   "shrines-temples": ["shrine", "temple"],
   museums: ["museum"],
@@ -93,9 +97,19 @@ interface RecommendedSpotsProps {
 }
 
 export default function RecommendedSpots({ spots, onAddSpot, usedSpotIds }: RecommendedSpotsProps) {
+  const { user } = useAuth();
   const hasFeatured = spots.some((s) => s.isFeatured);
   const [activeFilter, setActiveFilter] = useState<FilterTab>(hasFeatured ? "popular" : "all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (user) {
+      getUserFavoriteSpotIds(user.id).then((ids) => setFavoriteIds(new Set(ids)));
+    }
+  }, [user]);
+
+  const hasFavorites = favoriteIds.size > 0;
 
   const filteredSpots = useMemo(() => {
     let result = spots;
@@ -103,6 +117,8 @@ export default function RecommendedSpots({ spots, onAddSpot, usedSpotIds }: Reco
     // Category filter
     if (activeFilter === "popular") {
       result = result.filter((spot) => spot.isFeatured);
+    } else if (activeFilter === "favorites") {
+      result = result.filter((spot) => favoriteIds.has(spot.id));
     } else if (activeFilter !== "all") {
       result = result.filter((spot) => FILTER_MAP[activeFilter].includes(spot.category));
     }
@@ -163,6 +179,7 @@ export default function RecommendedSpots({ spots, onAddSpot, usedSpotIds }: Reco
       <div className="flex gap-1 px-3 py-2.5 border-b border-gray-100 overflow-x-auto flex-shrink-0">
         {FILTER_TABS.map((tab) => {
           if (tab.value === "popular" && !hasFeatured) return null;
+          if (tab.value === "favorites" && !hasFavorites) return null;
           return (
           <button
             key={tab.value}
@@ -171,11 +188,13 @@ export default function RecommendedSpots({ spots, onAddSpot, usedSpotIds }: Reco
               activeFilter === tab.value
                 ? tab.value === "popular"
                   ? "text-amber-700 bg-amber-50 font-semibold"
+                  : tab.value === "favorites"
+                  ? "text-red-600 bg-red-50 font-semibold"
                   : "text-accent bg-accent-light font-semibold"
                 : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
             }`}
           >
-            {tab.value === "popular" ? "★ Popular" : tab.label}
+            {tab.value === "popular" ? "★ Popular" : tab.value === "favorites" ? "♥ Favorites" : tab.label}
           </button>
           );
         })}

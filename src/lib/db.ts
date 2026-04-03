@@ -76,6 +76,49 @@ export async function getPopularSpots(area: string, limit = 10): Promise<{ spot:
     .slice(0, limit);
 }
 
+// ===== FAVORITES =====
+
+export async function getUserFavoriteSpotIds(userId: string): Promise<string[]> {
+  const { data, error } = await supabase
+    .from("favorites")
+    .select("spot_id")
+    .eq("user_id", userId);
+
+  if (error || !data) return [];
+  return data.map((row) => row.spot_id as string);
+}
+
+export async function getUserFavoriteSpots(userId: string): Promise<Spot[]> {
+  const favoriteIds = await getUserFavoriteSpotIds(userId);
+  if (favoriteIds.length === 0) return [];
+
+  const { data, error } = await supabase
+    .from("spots")
+    .select("*")
+    .in("id", favoriteIds);
+
+  if (error || !data) return [];
+  return data.map(mapSpot);
+}
+
+export async function addFavorite(userId: string, spotId: string): Promise<boolean> {
+  const { error } = await supabase
+    .from("favorites")
+    .insert({ user_id: userId, spot_id: spotId });
+
+  return !error;
+}
+
+export async function removeFavorite(userId: string, spotId: string): Promise<boolean> {
+  const { error } = await supabase
+    .from("favorites")
+    .delete()
+    .eq("user_id", userId)
+    .eq("spot_id", spotId);
+
+  return !error;
+}
+
 export async function getAllSpotSlugs(): Promise<string[]> {
   const { data, error } = await supabase
     .from("spots")
