@@ -78,13 +78,15 @@ export default function ItineraryCard({ itinerary, index = 0 }: ItineraryCardPro
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end px-4 py-3 border-t border-gray-100">
-          <span className="text-[13px] text-gray-400">
-            {itinerary.viewCount >= 1000
-              ? `${(itinerary.viewCount / 1000).toFixed(1)}k views`
-              : `${itinerary.viewCount} views`}
-          </span>
-        </div>
+        {itinerary.viewCount > 0 && (
+          <div className="flex items-center justify-end px-4 py-3 border-t border-gray-100">
+            <span className="text-[13px] text-gray-400">
+              {itinerary.viewCount >= 1000
+                ? `${(itinerary.viewCount / 1000).toFixed(1)}k views`
+                : `${itinerary.viewCount} views`}
+            </span>
+          </div>
+        )}
       </div>
     </Link>
   );
