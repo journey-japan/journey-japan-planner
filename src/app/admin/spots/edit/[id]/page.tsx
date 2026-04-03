@@ -72,6 +72,7 @@ function SpotEditorContent() {
   const [photoErrors, setPhotoErrors] = useState<Record<number, boolean>>({});
   const [uploading, setUploading] = useState(false);
   const [generatingDesc, setGeneratingDesc] = useState(false);
+  const [lookingUp, setLookingUp] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -220,6 +221,41 @@ function SpotEditorContent() {
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     }
+  }
+
+  async function handleLookupPlace() {
+    const query = nameEn.trim() || nameJa.trim();
+    if (!query) {
+      alert("Enter the spot name first.");
+      return;
+    }
+
+    setLookingUp(true);
+
+    const session = await supabase.auth.getSession();
+    const token = session.data.session?.access_token;
+
+    const res = await fetch("/api/admin/spots/lookup-place", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ query: `${query} ${nameJa}` }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data.address) setAddress(data.address);
+      if (data.lat != null) setLat(String(data.lat));
+      if (data.lng != null) setLng(String(data.lng));
+      if (data.placeId) setGooglePlaceId(data.placeId);
+    } else {
+      const data = await res.json();
+      alert(`Lookup failed: ${data.error}`);
+    }
+
+    setLookingUp(false);
   }
 
   async function handleGenerateDescription() {
@@ -482,9 +518,20 @@ function SpotEditorContent() {
 
             {/* Location & Category */}
             <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h2 className="text-sm font-semibold text-gray-700 mb-4">
-                Location & Category
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-sm font-semibold text-gray-700">
+                  Location & Category
+                </h2>
+                <button
+                  onClick={handleLookupPlace}
+                  disabled={lookingUp}
+                  className={`text-xs font-medium transition-colors ${
+                    lookingUp ? "text-gray-400" : "text-accent hover:text-accent-hover"
+                  }`}
+                >
+                  {lookingUp ? "Looking up..." : "Auto-fill from Google Maps"}
+                </button>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-gray-500 mb-1">
