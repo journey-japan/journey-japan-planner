@@ -136,7 +136,7 @@ export default function RecommendedSpots({ spots, onAddSpot, usedSpotIds }: Reco
   }, [spots, activeFilter, searchQuery]);
 
   return (
-    <div className="bg-white border-r border-gray-200 flex flex-col overflow-hidden">
+    <div className="bg-white border-r border-gray-200 flex flex-col overflow-hidden w-full">
       {/* Header */}
       <div className="px-4 pt-4 pb-3 border-b border-gray-200 flex-shrink-0">
         <div className="flex items-center justify-between mb-2">

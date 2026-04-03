@@ -462,7 +462,7 @@ export default function EditorPage() {
                 ? "..."
                 : existingItineraryId
                 ? <><span className="hidden md:inline">Save Changes</span><span className="md:hidden">Save</span></>
-                : "Publish"}
+                : "Save"}
             </button>
             {showShareToast && (
               <div className="absolute top-full right-0 mt-2 bg-gray-800 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap z-50">
@@ -612,7 +612,7 @@ export default function EditorPage() {
           </div>
 
           {/* RECOMMENDED SPOTS (center column) */}
-          <div className={`${mobileTab !== "spots" ? "hidden md:block" : "block"}`}>
+          <div className={`overflow-hidden ${mobileTab !== "spots" ? "hidden md:flex" : "flex"}`}>
             <RecommendedSpots spots={spots} onAddSpot={(spot) => { handleAddSpot(spot); setMobileTab("itinerary"); }} usedSpotIds={usedSpotIds} />
           </div>
 
