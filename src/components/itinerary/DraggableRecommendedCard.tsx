@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useDraggable } from "@dnd-kit/core";
 import { Spot } from "@/types";
 import { formatAdmissionFee } from "@/lib/format";
@@ -163,9 +164,21 @@ export default function DraggableRecommendedCard({
       <div className="p-3">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <div className="text-[13px] font-semibold leading-tight">
-              {spot.nameEn}
-            </div>
+            {spot.slug ? (
+              <Link
+                href={`/spots/${spot.slug}`}
+                target="_blank"
+                className="text-[13px] font-semibold leading-tight hover:text-accent transition-colors"
+                onClick={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
+              >
+                {spot.nameEn}
+              </Link>
+            ) : (
+              <div className="text-[13px] font-semibold leading-tight">
+                {spot.nameEn}
+              </div>
+            )}
             <div className="text-[11px] text-gray-400 mt-0.5">
               {spot.nameJa}
             </div>
