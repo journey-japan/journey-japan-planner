@@ -97,7 +97,7 @@ export default function EditorPage() {
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [loadingItinerary, setLoadingItinerary] = useState(isExistingItinerary);
   const [detailSpot, setDetailSpot] = useState<Spot | null>(null);
-  const [mobileTab, setMobileTab] = useState<"itinerary" | "spots" | "map">("itinerary");
+
 
   // Load existing itinerary from DB when editing
   useEffect(() => {
@@ -472,37 +472,16 @@ export default function EditorPage() {
           </div>
         </div>
 
-        {/* ===== MOBILE TAB BAR ===== */}
-        <div className="md:hidden flex border-b border-gray-200 bg-white flex-shrink-0">
-          {([
-            { key: "itinerary", label: "Itinerary", icon: "📋" },
-            { key: "spots", label: "Spots", icon: "📍" },
-            { key: "map", label: "Map", icon: "🗺️" },
-          ] as const).map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setMobileTab(tab.key)}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-xs font-medium transition-colors ${
-                mobileTab === tab.key
-                  ? "text-accent border-b-2 border-accent bg-accent-light/30"
-                  : "text-gray-400 hover:text-gray-600"
-              }`}
-            >
-              <span>{tab.icon}</span>
-              {tab.label}
-              {tab.key === "itinerary" && items.length > 0 && (
-                <span className="bg-accent text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                  {items.length}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
-
         {/* ===== MAIN LAYOUT ===== */}
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-[380px_1fr_50vw] overflow-hidden">
+        <div className="flex-1 flex flex-col md:grid md:grid-cols-[380px_1fr_50vw] overflow-hidden">
+          {/* Mobile: top half = 2 columns (itinerary + spots), bottom half = map */}
+          {/* Desktop: 3 columns as before */}
+
+          {/* Top row on mobile: Itinerary + Spots side by side */}
+          <div className="flex md:contents flex-1 min-h-0">
+
           {/* SIDEBAR — Itinerary */}
-          <div className={`bg-white md:border-r border-gray-200 flex flex-col overflow-hidden relative ${mobileTab !== "itinerary" ? "hidden md:flex" : "flex"}`}>
+          <div className="bg-white md:border-r border-gray-200 flex flex-col overflow-hidden relative w-1/2 md:w-auto border-r border-gray-200">
             {/* Trip info bar */}
             <div className="px-4 md:px-5 py-3 border-b border-gray-200 flex items-center gap-3 text-[13px] text-gray-500 flex-shrink-0">
               <div className="flex items-center gap-1.5">
@@ -591,7 +570,6 @@ export default function EditorPage() {
                   <button
                     onClick={() => {
                       setIsSearchOpen(true);
-                      setMobileTab("spots");
                     }}
                     className="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-400 text-sm font-medium hover:border-accent hover:text-accent hover:bg-accent-light transition-all mt-2"
                   >
@@ -612,12 +590,14 @@ export default function EditorPage() {
           </div>
 
           {/* RECOMMENDED SPOTS (center column) */}
-          <div className={`overflow-hidden ${mobileTab !== "spots" ? "hidden md:flex" : "flex"}`}>
-            <RecommendedSpots spots={spots} onAddSpot={(spot) => { handleAddSpot(spot); setMobileTab("itinerary"); }} usedSpotIds={usedSpotIds} />
+          <div className="overflow-hidden flex w-1/2 md:w-auto">
+            <RecommendedSpots spots={spots} onAddSpot={handleAddSpot} usedSpotIds={usedSpotIds} />
           </div>
 
-          {/* MAP AREA (right column) */}
-          <div className={`${mobileTab !== "map" ? "hidden md:block" : "block"}`}>
+          </div>{/* Close mobile top row wrapper */}
+
+          {/* MAP AREA (right column on desktop, bottom on mobile) */}
+          <div className="h-[40vh] md:h-auto flex-shrink-0 md:flex-shrink">
             {user ? (
               <GoogleMap items={items} />
             ) : (

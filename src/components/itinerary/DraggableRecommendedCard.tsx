@@ -156,8 +156,8 @@ export default function DraggableRecommendedCard({
           </span>
         )}
         {!isAdded && (
-          <div className="absolute bottom-2 right-2 bg-accent/80 text-white text-[10px] font-medium px-2 py-0.5 rounded">
-            Drag to add →
+          <div className="absolute bottom-2 left-2 bg-accent/80 text-white text-[10px] font-medium px-2 py-0.5 rounded">
+            ← Drag to add
           </div>
         )}
       </div>
