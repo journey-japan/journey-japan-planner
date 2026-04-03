@@ -4,22 +4,28 @@ import { useState, useMemo } from "react";
 import { Spot } from "@/types";
 import DraggableRecommendedCard from "./DraggableRecommendedCard";
 
-type FilterTab = "all" | "sightseeing" | "food" | "shopping" | "nature";
+type FilterTab = "all" | "shrines-temples" | "museums" | "food" | "shopping" | "entertainment" | "nature" | "landmarks";
 
 const FILTER_TABS: { value: FilterTab; label: string }[] = [
   { value: "all", label: "All" },
-  { value: "sightseeing", label: "Sightseeing" },
+  { value: "shrines-temples", label: "Shrines & Temples" },
+  { value: "museums", label: "Museums" },
   { value: "food", label: "Food & Drink" },
   { value: "shopping", label: "Shopping" },
-  { value: "nature", label: "Nature" },
+  { value: "entertainment", label: "Entertainment" },
+  { value: "nature", label: "Parks & Nature" },
+  { value: "landmarks", label: "Landmarks" },
 ];
 
 const FILTER_MAP: Record<FilterTab, string[]> = {
   all: [],
-  sightseeing: ["shrine", "temple", "museum", "landmark", "observation", "entertainment"],
+  "shrines-temples": ["shrine", "temple"],
+  museums: ["museum"],
   food: ["food", "restaurant", "market"],
   shopping: ["shopping"],
+  entertainment: ["entertainment"],
   nature: ["park", "nature", "onsen"],
+  landmarks: ["landmark", "observation"],
 };
 
 // --- Fuzzy search ---
