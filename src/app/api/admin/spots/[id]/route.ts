@@ -71,6 +71,7 @@ export async function PUT(
       meta_title: body.meta_title?.trim() || null,
       meta_description: body.meta_description?.trim() || null,
       slug: body.slug?.trim() || null,
+      is_featured: body.is_featured ?? false,
     })
     .eq("id", id);
 

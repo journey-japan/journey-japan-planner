@@ -4,9 +4,10 @@ import { useState, useMemo } from "react";
 import { Spot } from "@/types";
 import DraggableRecommendedCard from "./DraggableRecommendedCard";
 
-type FilterTab = "all" | "shrines-temples" | "museums" | "food" | "shopping" | "entertainment" | "nature" | "landmarks";
+type FilterTab = "popular" | "all" | "shrines-temples" | "museums" | "food" | "shopping" | "entertainment" | "nature" | "landmarks";
 
 const FILTER_TABS: { value: FilterTab; label: string }[] = [
+  { value: "popular", label: "Popular" },
   { value: "all", label: "All" },
   { value: "shrines-temples", label: "Shrines & Temples" },
   { value: "museums", label: "Museums" },
@@ -18,6 +19,7 @@ const FILTER_TABS: { value: FilterTab; label: string }[] = [
 ];
 
 const FILTER_MAP: Record<FilterTab, string[]> = {
+  popular: [],
   all: [],
   "shrines-temples": ["shrine", "temple"],
   museums: ["museum"],
@@ -91,14 +93,17 @@ interface RecommendedSpotsProps {
 }
 
 export default function RecommendedSpots({ spots, onAddSpot, usedSpotIds }: RecommendedSpotsProps) {
-  const [activeFilter, setActiveFilter] = useState<FilterTab>("all");
+  const hasFeatured = spots.some((s) => s.isFeatured);
+  const [activeFilter, setActiveFilter] = useState<FilterTab>(hasFeatured ? "popular" : "all");
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredSpots = useMemo(() => {
     let result = spots;
 
     // Category filter
-    if (activeFilter !== "all") {
+    if (activeFilter === "popular") {
+      result = result.filter((spot) => spot.isFeatured);
+    } else if (activeFilter !== "all") {
       result = result.filter((spot) => FILTER_MAP[activeFilter].includes(spot.category));
     }
 
@@ -119,7 +124,9 @@ export default function RecommendedSpots({ spots, onAddSpot, usedSpotIds }: Reco
       {/* Header */}
       <div className="px-4 pt-4 pb-3 border-b border-gray-200 flex-shrink-0">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-bold text-gray-800">Must Visit in Tokyo</h3>
+          <h3 className="text-sm font-bold text-gray-800">
+            {activeFilter === "popular" ? "Popular Spots" : "Recommended Spots"}
+          </h3>
           <span className="text-[11px] text-gray-400">{filteredSpots.length} spots</span>
         </div>
 
@@ -154,19 +161,24 @@ export default function RecommendedSpots({ spots, onAddSpot, usedSpotIds }: Reco
 
       {/* Filter tabs */}
       <div className="flex gap-1 px-3 py-2.5 border-b border-gray-100 overflow-x-auto flex-shrink-0">
-        {FILTER_TABS.map((tab) => (
+        {FILTER_TABS.map((tab) => {
+          if (tab.value === "popular" && !hasFeatured) return null;
+          return (
           <button
             key={tab.value}
             onClick={() => setActiveFilter(tab.value)}
             className={`flex-shrink-0 px-3 py-1 rounded-md text-xs font-medium transition-all ${
               activeFilter === tab.value
-                ? "text-accent bg-accent-light font-semibold"
+                ? tab.value === "popular"
+                  ? "text-amber-700 bg-amber-50 font-semibold"
+                  : "text-accent bg-accent-light font-semibold"
                 : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
             }`}
           >
-            {tab.label}
+            {tab.value === "popular" ? "★ Popular" : tab.label}
           </button>
-        ))}
+          );
+        })}
       </div>
 
       {/* Spot cards */}

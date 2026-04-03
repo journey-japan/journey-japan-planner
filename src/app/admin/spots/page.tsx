@@ -29,6 +29,7 @@ function mapSpot(row: Record<string, unknown>): Spot {
     metaTitle: row.meta_title as string | undefined,
     metaDescription: row.meta_description as string | undefined,
     slug: row.slug as string | undefined,
+    isFeatured: row.is_featured as boolean | undefined,
   };
 }
 
@@ -128,6 +129,59 @@ function AdminSpotsContent() {
       setSpots(data.map(mapSpot));
     }
     setLoading(false);
+  }
+
+  async function toggleFeatured(e: React.MouseEvent, spotId: string, current: boolean) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const session = await supabase.auth.getSession();
+    const token = session.data.session?.access_token;
+
+    // Optimistic update
+    setSpots((prev) =>
+      prev.map((s) => (s.id === spotId ? { ...s, isFeatured: !current } : s))
+    );
+
+    const res = await fetch(`/api/admin/spots/${spotId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(
+        // Send full spot data - get from current spots
+        (() => {
+          const spot = spots.find((s) => s.id === spotId)!;
+          return {
+            name_en: spot.nameEn,
+            name_ja: spot.nameJa,
+            description: spot.description,
+            category: spot.category,
+            area: spot.area,
+            lat: spot.lat,
+            lng: spot.lng,
+            address: spot.address,
+            photo_urls: spot.photoUrls,
+            admission_fee: spot.admissionFee,
+            admission_fee_currency: spot.admissionFeeCurrency,
+            avg_duration_min: spot.avgDurationMin,
+            google_place_id: spot.googlePlaceId,
+            meta_title: spot.metaTitle,
+            meta_description: spot.metaDescription,
+            slug: spot.slug,
+            is_featured: !current,
+          };
+        })()
+      ),
+    });
+
+    if (!res.ok) {
+      // Revert on failure
+      setSpots((prev) =>
+        prev.map((s) => (s.id === spotId ? { ...s, isFeatured: current } : s))
+      );
+    }
   }
 
   const filteredSpots = useMemo(() => {
@@ -328,10 +382,23 @@ function AdminSpotsContent() {
 
                   {/* Info */}
                   <div className="p-3">
-                    <h3 className="text-sm font-semibold text-gray-900 leading-tight">
-                      {spot.nameEn}
-                    </h3>
-                    <p className="text-xs text-gray-400 mt-0.5">{spot.nameJa}</p>
+                    <div className="flex items-start justify-between gap-1">
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-900 leading-tight">
+                          {spot.nameEn}
+                        </h3>
+                        <p className="text-xs text-gray-400 mt-0.5">{spot.nameJa}</p>
+                      </div>
+                      <button
+                        onClick={(e) => toggleFeatured(e, spot.id, !!spot.isFeatured)}
+                        className={`flex-shrink-0 text-lg leading-none transition-colors ${
+                          spot.isFeatured ? "text-amber-400" : "text-gray-200 hover:text-amber-300"
+                        }`}
+                        title={spot.isFeatured ? "Remove from Popular" : "Mark as Popular"}
+                      >
+                        ★
+                      </button>
+                    </div>
                     <div className="flex items-center gap-2 mt-2">
                       <span className="text-[10px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
                         {spot.category}

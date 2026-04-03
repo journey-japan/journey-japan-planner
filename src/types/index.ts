@@ -19,6 +19,7 @@ export interface Spot {
   metaTitle?: string;
   metaDescription?: string;
   slug?: string;
+  isFeatured?: boolean;
 }
 
 export interface ItineraryItem {

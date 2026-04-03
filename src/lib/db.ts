@@ -534,6 +534,7 @@ function mapSpot(row: Record<string, unknown>): Spot {
     metaTitle: row.meta_title as string | undefined,
     metaDescription: row.meta_description as string | undefined,
     slug: row.slug as string | undefined,
+    isFeatured: row.is_featured as boolean | undefined,
   };
 }
 

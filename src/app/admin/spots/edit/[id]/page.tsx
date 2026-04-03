@@ -62,6 +62,7 @@ function SpotEditorContent() {
   const [admissionFeeCurrency, setAdmissionFeeCurrency] = useState("JPY");
   const [avgDurationMin, setAvgDurationMin] = useState("");
   const [openingHoursJson, setOpeningHoursJson] = useState("");
+  const [isFeatured, setIsFeatured] = useState(false);
   const [slug, setSlug] = useState("");
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
   const [metaTitle, setMetaTitle] = useState("");
@@ -130,6 +131,7 @@ function SpotEditorContent() {
     setSlug(data.slug || "");
     setMetaTitle(data.meta_title || "");
     setMetaDescription(data.meta_description || "");
+    setIsFeatured(!!data.is_featured);
     if (data.slug) setSlugManuallyEdited(true);
     setLoading(false);
   }
@@ -192,6 +194,7 @@ function SpotEditorContent() {
       meta_title: metaTitle || null,
       meta_description: metaDescription || null,
       slug: slug || null,
+      is_featured: isFeatured,
     };
 
     const url = isNew ? "/api/admin/spots" : `/api/admin/spots/${id}`;
@@ -441,9 +444,22 @@ function SpotEditorContent() {
           <div className="space-y-6">
             {/* Basic Info */}
             <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h2 className="text-sm font-semibold text-gray-700 mb-4">
-                Basic Information
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-sm font-semibold text-gray-700">
+                  Basic Information
+                </h2>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isFeatured}
+                    onChange={(e) => setIsFeatured(e.target.checked)}
+                    className="w-4 h-4 rounded border-gray-300 text-amber-500 focus:ring-amber-400"
+                  />
+                  <span className="text-xs font-medium text-gray-500">
+                    ★ Popular Spot
+                  </span>
+                </label>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-gray-500 mb-1">
