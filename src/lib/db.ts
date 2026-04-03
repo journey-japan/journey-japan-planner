@@ -28,6 +28,27 @@ export async function getSpotById(id: string): Promise<Spot | null> {
   return mapSpot(data);
 }
 
+export async function getSpotBySlug(slug: string): Promise<Spot | null> {
+  const { data, error } = await supabase
+    .from("spots")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+
+  if (error || !data) return null;
+  return mapSpot(data);
+}
+
+export async function getAllSpotSlugs(): Promise<string[]> {
+  const { data, error } = await supabase
+    .from("spots")
+    .select("slug")
+    .not("slug", "is", null);
+
+  if (error || !data) return [];
+  return data.map((row) => row.slug as string).filter(Boolean);
+}
+
 // ===== ITINERARIES =====
 
 export async function getItineraries(area?: string): Promise<Itinerary[]> {

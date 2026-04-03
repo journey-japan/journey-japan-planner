@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Spot } from "@/types";
 import { formatAdmissionFee } from "@/lib/format";
-import SpotDetailModal from "@/components/itinerary/SpotDetailModal";
 
 type FilterTab =
   | "all"
@@ -66,7 +66,6 @@ interface SpotGridProps {
 export default function SpotGrid({ spots }: SpotGridProps) {
   const [activeFilter, setActiveFilter] = useState<FilterTab>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedSpot, setSelectedSpot] = useState<Spot | null>(null);
 
   const activeCategories = FILTER_TABS.find((t) => t.value === activeFilter)?.categories ?? [];
 
@@ -135,10 +134,10 @@ export default function SpotGrid({ spots }: SpotGridProps) {
           const fee = formatAdmissionFee(spot.admissionFee, spot.admissionFeeCurrency);
 
           return (
-            <article
+            <Link
               key={spot.id}
-              onClick={() => setSelectedSpot(spot)}
-              className={`rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow bg-white cursor-pointer ${
+              href={spot.slug ? `/spots/${spot.slug}` : "#"}
+              className={`rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow bg-white block ${
                 matches ? "" : "hidden"
               }`}
             >
@@ -191,12 +190,11 @@ export default function SpotGrid({ spots }: SpotGridProps) {
                   )}
                 </div>
               </div>
-            </article>
+            </Link>
           );
         })}
       </div>
 
-      <SpotDetailModal spot={selectedSpot} onClose={() => setSelectedSpot(null)} />
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { MetadataRoute } from "next";
-import { getItineraries, getBlogPosts } from "@/lib/db";
+import { getItineraries, getBlogPosts, getAllSpotSlugs } from "@/lib/db";
 import { DESTINATION_DATA } from "@/lib/destination-data";
 
 const SITE_URL = "https://plan.journeyjpn.com";
@@ -74,5 +74,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // If DB is unavailable, skip blog posts
   }
 
-  return [...staticPages, ...destinationPages, ...itineraryPages, ...blogIndex, ...blogPostPages];
+  // Spot pages
+  let spotPages: MetadataRoute.Sitemap = [];
+  try {
+    const slugs = await getAllSpotSlugs();
+    spotPages = slugs.map((slug) => ({
+      url: `${SITE_URL}/spots/${slug}`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    }));
+  } catch {
+    // If DB is unavailable, skip spot pages
+  }
+
+  return [...staticPages, ...destinationPages, ...spotPages, ...itineraryPages, ...blogIndex, ...blogPostPages];
 }
