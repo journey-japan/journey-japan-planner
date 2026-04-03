@@ -28,8 +28,6 @@ interface ItineraryCardProps {
 export default function ItineraryCard({ itinerary, index = 0 }: ItineraryCardProps) {
   const gradient = CARD_GRADIENTS[index % CARD_GRADIENTS.length];
   const emoji = CARD_EMOJIS[itinerary.tags[0]] || "🗾";
-  const authorInitial = itinerary.author?.displayName?.charAt(0) || "?";
-
   return (
     <Link href={`/itineraries/${itinerary.id}`}>
       <div className="border border-gray-200 rounded-xl overflow-hidden bg-white hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
@@ -69,18 +67,7 @@ export default function ItineraryCard({ itinerary, index = 0 }: ItineraryCardPro
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100">
-          <div className="flex items-center gap-2 text-[13px] text-gray-500">
-            <div
-              className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-semibold ${
-                itinerary.isPro ? "bg-accent" : "bg-gray-400"
-              }`}
-            >
-              {authorInitial}
-            </div>
-            {itinerary.author?.displayName}
-            {itinerary.isPro && " — Travel Agent"}
-          </div>
+        <div className="flex items-center justify-end px-4 py-3 border-t border-gray-100">
           <span className="text-[13px] text-gray-400">
             {itinerary.viewCount >= 1000
               ? `${(itinerary.viewCount / 1000).toFixed(1)}k views`
