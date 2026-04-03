@@ -9,6 +9,7 @@ import LoginModal from "@/components/auth/LoginModal";
 export default function Header() {
   const { user, profile, loading, signOut } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -68,8 +69,25 @@ export default function Header() {
           </nav>
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center gap-3">
+          {/* Mobile hamburger button */}
+          <button
+            className="md:hidden flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 transition-colors"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? (
+              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
+          </button>
+
+          {/* Actions (desktop) */}
+          <div className="hidden md:flex items-center gap-3">
             {loading ? (
               <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse" />
             ) : user ? (
@@ -173,6 +191,60 @@ export default function Header() {
           </div>
         </div>
       </header>
+
+      {/* Mobile menu drawer */}
+      {mobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 z-40">
+          <div className="absolute inset-0 bg-black/30" onClick={() => setMobileMenuOpen(false)} />
+          <div className="absolute top-16 left-0 right-0 bg-white border-b border-gray-200 shadow-lg z-50">
+            <nav className="flex flex-col py-2">
+              <Link href="/" className="px-6 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50" onClick={() => setMobileMenuOpen(false)}>Home</Link>
+              <Link href="/itineraries" className="px-6 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50" onClick={() => setMobileMenuOpen(false)}>Itineraries</Link>
+              <Link href="/destinations/tokyo" className="px-6 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50" onClick={() => setMobileMenuOpen(false)}>Destinations</Link>
+              <Link href="#" className="px-6 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50" onClick={() => setMobileMenuOpen(false)}>Pro Picks</Link>
+              <Link href="/blog" className="px-6 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
+            </nav>
+            <div className="border-t border-gray-100 px-6 py-4 flex flex-col gap-2">
+              {loading ? (
+                <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse" />
+              ) : user ? (
+                <>
+                  <div className="flex items-center gap-3 mb-2">
+                    {profile?.avatar_url ? (
+                      <img src={profile.avatar_url} alt={profile.display_name} className="w-8 h-8 rounded-full" />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-white text-sm font-medium">
+                        {(profile?.display_name || user.email || "U")[0].toUpperCase()}
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{profile?.display_name || user.email?.split("@")[0]}</p>
+                      <p className="text-xs text-gray-400">{user.email}</p>
+                    </div>
+                  </div>
+                  <Link href="/my-itineraries" className="text-sm text-gray-600 py-2 hover:text-gray-900" onClick={() => setMobileMenuOpen(false)}>My Itineraries</Link>
+                  <Link href="/favorites" className="text-sm text-gray-600 py-2 hover:text-gray-900" onClick={() => setMobileMenuOpen(false)}>My Favorites</Link>
+                  <button onClick={() => { setMobileMenuOpen(false); signOut(); }} className="text-sm text-red-600 py-2 text-left hover:text-red-700">Sign Out</button>
+                </>
+              ) : (
+                <button
+                  onClick={() => { setMobileMenuOpen(false); setLoginModalOpen(true); }}
+                  className="text-sm font-medium text-gray-600 hover:text-gray-900 py-2 text-left"
+                >
+                  Log in
+                </button>
+              )}
+              <Link
+                href="/editor/new"
+                className="text-sm font-medium text-white bg-accent hover:bg-accent-hover px-5 py-2.5 rounded-lg transition-colors text-center mt-1"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Plan a Trip
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
 
       <LoginModal
         isOpen={loginModalOpen}

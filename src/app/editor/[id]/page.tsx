@@ -97,6 +97,7 @@ export default function EditorPage() {
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [loadingItinerary, setLoadingItinerary] = useState(isExistingItinerary);
   const [detailSpot, setDetailSpot] = useState<Spot | null>(null);
+  const [mobileTab, setMobileTab] = useState<"itinerary" | "spots" | "map">("itinerary");
 
   // Load existing itinerary from DB when editing
   useEffect(() => {
@@ -423,58 +424,87 @@ export default function EditorPage() {
     >
       <div className="h-screen flex flex-col overflow-hidden">
         {/* ===== EDITOR HEADER ===== */}
-        <div className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-5 flex-shrink-0">
-          <div className="flex items-center gap-4">
+        <div className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-3 md:px-5 flex-shrink-0">
+          <div className="flex items-center gap-2 md:gap-4 min-w-0 flex-1">
             <Link
               href="/"
-              className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1.5 px-2.5 py-1.5 rounded-md hover:bg-gray-100 transition-all"
+              className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1 px-2 py-1.5 rounded-md hover:bg-gray-100 transition-all flex-shrink-0"
             >
-              ← Back
+              ←<span className="hidden sm:inline ml-1">Back</span>
             </Link>
             <input
-              className="text-base font-semibold border-none outline-none bg-transparent hover:bg-gray-100 focus:bg-gray-100 px-2 py-1 rounded-md min-w-[280px]"
+              className="text-sm md:text-base font-semibold border-none outline-none bg-transparent hover:bg-gray-100 focus:bg-gray-100 px-2 py-1 rounded-md min-w-0 flex-1 md:max-w-[280px]"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
-            <span className={`text-xs px-2.5 py-1 rounded ${existingItineraryId ? "text-accent bg-accent-light font-medium" : "text-gray-400 bg-gray-100"}`}>
+            <span className={`text-xs px-2 py-0.5 rounded flex-shrink-0 hidden sm:inline ${existingItineraryId ? "text-accent bg-accent-light font-medium" : "text-gray-400 bg-gray-100"}`}>
               {existingItineraryId ? "Published" : "Draft"}
             </span>
           </div>
-          <div className="flex items-center gap-2.5 relative">
-            <button className="text-sm text-gray-500 hover:text-gray-700 px-4 py-1.5 rounded-lg hover:bg-gray-100 transition-all">
+          <div className="flex items-center gap-1.5 md:gap-2.5 relative flex-shrink-0">
+            <button className="text-sm text-gray-500 hover:text-gray-700 px-3 md:px-4 py-1.5 rounded-lg hover:bg-gray-100 transition-all hidden md:block">
               Preview
             </button>
             <button
               onClick={handleShareLink}
-              className="text-sm text-gray-600 border border-gray-300 hover:border-gray-400 px-4 py-1.5 rounded-lg transition-all"
+              className="text-gray-600 border border-gray-300 hover:border-gray-400 p-2 md:px-4 md:py-1.5 rounded-lg transition-all"
+              title="Share Link"
             >
-              Share Link
+              <svg className="w-4 h-4 md:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+              <span className="hidden md:inline text-sm">Share Link</span>
             </button>
             <button
               onClick={handlePublish}
               disabled={isPublishing}
-              className="text-sm text-white bg-accent hover:bg-accent-hover px-5 py-1.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-sm text-white bg-accent hover:bg-accent-hover px-3 md:px-5 py-1.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isPublishing
-                ? "Saving..."
+                ? "..."
                 : existingItineraryId
-                ? "Save Changes"
+                ? <><span className="hidden md:inline">Save Changes</span><span className="md:hidden">Save</span></>
                 : "Publish"}
             </button>
             {showShareToast && (
-              <div className="absolute top-full right-0 mt-2 bg-gray-800 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap">
+              <div className="absolute top-full right-0 mt-2 bg-gray-800 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap z-50">
                 Link copied!
               </div>
             )}
           </div>
         </div>
 
-        {/* ===== MAIN LAYOUT (3 columns) ===== */}
-        <div className="flex-1 grid grid-cols-[380px_1fr_50vw] overflow-hidden">
+        {/* ===== MOBILE TAB BAR ===== */}
+        <div className="md:hidden flex border-b border-gray-200 bg-white flex-shrink-0">
+          {([
+            { key: "itinerary", label: "Itinerary", icon: "📋" },
+            { key: "spots", label: "Spots", icon: "📍" },
+            { key: "map", label: "Map", icon: "🗺️" },
+          ] as const).map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setMobileTab(tab.key)}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-xs font-medium transition-colors ${
+                mobileTab === tab.key
+                  ? "text-accent border-b-2 border-accent bg-accent-light/30"
+                  : "text-gray-400 hover:text-gray-600"
+              }`}
+            >
+              <span>{tab.icon}</span>
+              {tab.label}
+              {tab.key === "itinerary" && items.length > 0 && (
+                <span className="bg-accent text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                  {items.length}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* ===== MAIN LAYOUT ===== */}
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-[380px_1fr_50vw] overflow-hidden">
           {/* SIDEBAR — Itinerary */}
-          <div className="bg-white border-r border-gray-200 flex flex-col overflow-hidden relative">
+          <div className={`bg-white md:border-r border-gray-200 flex flex-col overflow-hidden relative ${mobileTab !== "itinerary" ? "hidden md:flex" : "flex"}`}>
             {/* Trip info bar */}
-            <div className="px-5 py-3 border-b border-gray-200 flex items-center gap-3 text-[13px] text-gray-500 flex-shrink-0">
+            <div className="px-4 md:px-5 py-3 border-b border-gray-200 flex items-center gap-3 text-[13px] text-gray-500 flex-shrink-0">
               <div className="flex items-center gap-1.5">
                 <span>📍</span>
                 <select
@@ -493,7 +523,7 @@ export default function EditorPage() {
             </div>
 
             {/* Day tabs */}
-            <div className="flex gap-1 px-5 py-3 border-b border-gray-100 overflow-x-auto flex-shrink-0">
+            <div className="flex gap-1 px-4 md:px-5 py-3 border-b border-gray-100 overflow-x-auto flex-shrink-0">
               {days.map((day, i) => (
                 <button
                   key={day.id}
@@ -559,7 +589,10 @@ export default function EditorPage() {
                   </SortableContext>
 
                   <button
-                    onClick={() => setIsSearchOpen(true)}
+                    onClick={() => {
+                      setIsSearchOpen(true);
+                      setMobileTab("spots");
+                    }}
                     className="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-400 text-sm font-medium hover:border-accent hover:text-accent hover:bg-accent-light transition-all mt-2"
                   >
                     + Add a spot
@@ -579,44 +612,48 @@ export default function EditorPage() {
           </div>
 
           {/* RECOMMENDED SPOTS (center column) */}
-          <RecommendedSpots spots={spots} onAddSpot={handleAddSpot} usedSpotIds={usedSpotIds} />
+          <div className={`${mobileTab !== "spots" ? "hidden md:block" : "block"}`}>
+            <RecommendedSpots spots={spots} onAddSpot={(spot) => { handleAddSpot(spot); setMobileTab("itinerary"); }} usedSpotIds={usedSpotIds} />
+          </div>
 
           {/* MAP AREA (right column) */}
-          {user ? (
-            <GoogleMap items={items} />
-          ) : (
-            <div className="relative overflow-hidden">
-              <div
-                className="absolute inset-0"
-                style={{
-                  background:
-                    "radial-gradient(ellipse at 30% 40%, #d4e4d8 0%, transparent 50%), radial-gradient(ellipse at 70% 60%, #c8d8cc 0%, transparent 50%), linear-gradient(135deg, #e4ece6 0%, #d8e4dc 100%)",
-                }}
-              />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="bg-white/95 backdrop-blur rounded-xl shadow-lg p-8 max-w-xs text-center">
-                  <div className="w-12 h-12 bg-accent-light rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
+          <div className={`${mobileTab !== "map" ? "hidden md:block" : "block"}`}>
+            {user ? (
+              <GoogleMap items={items} />
+            ) : (
+              <div className="relative overflow-hidden h-full min-h-[300px]">
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background:
+                      "radial-gradient(ellipse at 30% 40%, #d4e4d8 0%, transparent 50%), radial-gradient(ellipse at 70% 60%, #c8d8cc 0%, transparent 50%), linear-gradient(135deg, #e4ece6 0%, #d8e4dc 100%)",
+                  }}
+                />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="bg-white/95 backdrop-blur rounded-xl shadow-lg p-8 max-w-xs text-center">
+                    <div className="w-12 h-12 bg-accent-light rounded-full flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-base font-semibold text-gray-900 mb-2">
+                      Interactive Map
+                    </h3>
+                    <p className="text-sm text-gray-500 mb-4">
+                      Log in to see your spots on an interactive Google Map
+                    </p>
+                    <button
+                      onClick={() => setLoginModalOpen(true)}
+                      className="w-full py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors"
+                    >
+                      Log in to unlock
+                    </button>
                   </div>
-                  <h3 className="text-base font-semibold text-gray-900 mb-2">
-                    Interactive Map
-                  </h3>
-                  <p className="text-sm text-gray-500 mb-4">
-                    Log in to see your spots on an interactive Google Map
-                  </p>
-                  <button
-                    onClick={() => setLoginModalOpen(true)}
-                    className="w-full py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors"
-                  >
-                    Log in to unlock
-                  </button>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 
