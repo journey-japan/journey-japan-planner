@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { Spot } from "@/types";
 import { formatAdmissionFee } from "@/lib/format";
+import { useAuth } from "@/lib/auth-context";
+import { addFavorite, removeFavorite } from "@/lib/db";
 
 const CATEGORY_EMOJIS: Record<string, string> = {
   shrine: "⛩️",
@@ -25,13 +27,40 @@ interface DraggableRecommendedCardProps {
   spot: Spot;
   isAdded: boolean;
   onAddSpot: (spot: Spot) => void;
+  isFavorited?: boolean;
+  onFavoriteToggle?: (spotId: string, isFav: boolean) => void;
 }
 
 export default function DraggableRecommendedCard({
   spot,
   isAdded,
   onAddSpot,
+  isFavorited = false,
+  onFavoriteToggle,
 }: DraggableRecommendedCardProps) {
+  const { user } = useAuth();
+  const [favorited, setFavorited] = useState(isFavorited);
+
+  useEffect(() => { setFavorited(isFavorited); }, [isFavorited]);
+
+  async function handleFavoriteToggle(e: React.MouseEvent) {
+    e.stopPropagation();
+    e.preventDefault();
+    if (!user) {
+      window.dispatchEvent(new Event("open-login-modal"));
+      return;
+    }
+    const newState = !favorited;
+    setFavorited(newState);
+    const success = newState
+      ? await addFavorite(user.id, spot.id)
+      : await removeFavorite(user.id, spot.id);
+    if (success) {
+      onFavoriteToggle?.(spot.id, newState);
+    } else {
+      setFavorited(!newState);
+    }
+  }
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `rec-${spot.id}`,
     data: { type: "recommended", spot },
@@ -105,6 +134,18 @@ export default function DraggableRecommendedCard({
             </div>
           </>
         )}
+
+        {/* Favorite button */}
+        <button
+          onClick={handleFavoriteToggle}
+          className={`absolute top-1.5 left-1.5 w-6 h-6 rounded-full flex items-center justify-center text-xs transition-all ${
+            favorited
+              ? "text-red-500 bg-red-50"
+              : "text-gray-300 bg-white/80 hover:text-red-400 opacity-0 group-hover:opacity-100"
+          }`}
+        >
+          {favorited ? "♥" : "♡"}
+        </button>
 
         {formatAdmissionFee(spot.admissionFee, spot.admissionFeeCurrency) && (
           <span className="absolute top-2 right-2 text-[10px] font-medium text-gray-500 bg-white/90 px-1.5 py-0.5 rounded">

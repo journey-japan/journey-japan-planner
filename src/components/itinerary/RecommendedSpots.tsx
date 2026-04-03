@@ -209,6 +209,14 @@ export default function RecommendedSpots({ spots, onAddSpot, usedSpotIds }: Reco
               spot={spot}
               isAdded={usedSpotIds.includes(spot.id)}
               onAddSpot={onAddSpot}
+              isFavorited={favoriteIds.has(spot.id)}
+              onFavoriteToggle={(spotId, isFav) => {
+                setFavoriteIds((prev) => {
+                  const next = new Set(prev);
+                  isFav ? next.add(spotId) : next.delete(spotId);
+                  return next;
+                });
+              }}
             />
           ))
         ) : (
