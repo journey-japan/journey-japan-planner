@@ -39,6 +39,43 @@ export async function getSpotBySlug(slug: string): Promise<Spot | null> {
   return mapSpot(data);
 }
 
+/**
+ * Count how many itineraries include each spot.
+ * Returns a map of spotId -> count.
+ */
+export async function getSpotUsageCounts(spotIds: string[]): Promise<Record<string, number>> {
+  if (spotIds.length === 0) return {};
+
+  const { data, error } = await supabase
+    .from("itinerary_items")
+    .select("spot_id")
+    .in("spot_id", spotIds);
+
+  if (error || !data) return {};
+
+  const counts: Record<string, number> = {};
+  for (const row of data) {
+    const id = row.spot_id as string;
+    counts[id] = (counts[id] || 0) + 1;
+  }
+  return counts;
+}
+
+/**
+ * Get the most popular spots in an area, ranked by itinerary usage.
+ */
+export async function getPopularSpots(area: string, limit = 10): Promise<{ spot: Spot; count: number }[]> {
+  const spots = await getSpots(area);
+  const ids = spots.map((s) => s.id);
+  const counts = await getSpotUsageCounts(ids);
+
+  return spots
+    .map((spot) => ({ spot, count: counts[spot.id] || 0 }))
+    .filter((entry) => entry.count > 0)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, limit);
+}
+
 export async function getAllSpotSlugs(): Promise<string[]> {
   const { data, error } = await supabase
     .from("spots")

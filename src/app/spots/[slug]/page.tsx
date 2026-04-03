@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { getSpotBySlug, getSpots } from "@/lib/db";
+import { getSpotBySlug, getSpots, getSpotUsageCounts, getPopularSpots } from "@/lib/db";
 import { formatAdmissionFee } from "@/lib/format";
 
 const SITE_URL = "https://plan.journeyjpn.com";
@@ -69,8 +69,17 @@ export default async function SpotDetailPage({
   const areaLabel = spot.area.charAt(0).toUpperCase() + spot.area.slice(1);
   const fee = formatAdmissionFee(spot.admissionFee, spot.admissionFeeCurrency);
 
-  // Other spots in the same area for recommendations
-  const areaSpots = await getSpots(spot.area);
+  // Popularity data
+  const [usageCounts, popularSpots, areaSpots] = await Promise.all([
+    getSpotUsageCounts([spot.id]),
+    getPopularSpots(spot.area, 5),
+    getSpots(spot.area),
+  ]);
+  const savedCount = usageCounts[spot.id] || 0;
+
+  // Find this spot's rank
+  const rank = popularSpots.findIndex((p) => p.spot.id === spot.id) + 1;
+
   const relatedSpots = areaSpots
     .filter((s) => s.id !== spot.id)
     .slice(0, 4);
@@ -169,6 +178,16 @@ export default async function SpotDetailPage({
             <span className="flex items-center gap-1">
               <span>📍</span> {areaLabel}
             </span>
+            {savedCount > 0 && (
+              <span className="flex items-center gap-1">
+                <span>👥</span> Saved by {savedCount} {savedCount === 1 ? "traveler" : "travelers"}
+              </span>
+            )}
+            {rank > 0 && (
+              <span className="flex items-center gap-1 font-medium text-accent">
+                <span>🏆</span> #{rank} in {areaLabel}
+              </span>
+            )}
           </div>
         </section>
 
@@ -225,7 +244,7 @@ export default async function SpotDetailPage({
                   <p className="text-sm text-gray-600 mb-3">{spot.address}</p>
                 )}
                 <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${spot.lat},${spot.lng}`}
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.nameEn + " " + spot.address)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg border border-gray-200 hover:border-accent hover:text-accent text-sm font-medium text-gray-600 transition-all"
@@ -249,6 +268,41 @@ export default async function SpotDetailPage({
                   Start Planning
                 </Link>
               </div>
+
+              {/* Popular Ranking */}
+              {popularSpots.length > 0 && (
+                <div className="bg-white rounded-xl border border-gray-200 p-5">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                    Popular in {areaLabel}
+                  </h3>
+                  <div className="space-y-2">
+                    {popularSpots.map((entry, i) => (
+                      <Link
+                        key={entry.spot.id}
+                        href={entry.spot.slug ? `/spots/${entry.spot.slug}` : "#"}
+                        className={`flex items-center gap-2.5 px-2 py-1.5 rounded-lg text-sm transition-colors ${
+                          entry.spot.id === spot.id
+                            ? "bg-accent-light text-accent font-medium"
+                            : "text-gray-600 hover:bg-gray-50"
+                        }`}
+                      >
+                        <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
+                          i === 0 ? "bg-amber-100 text-amber-700"
+                            : i === 1 ? "bg-gray-200 text-gray-600"
+                            : i === 2 ? "bg-orange-100 text-orange-700"
+                            : "bg-gray-100 text-gray-500"
+                        }`}>
+                          {i + 1}
+                        </span>
+                        <span className="truncate">{entry.spot.nameEn}</span>
+                        <span className="text-[10px] text-gray-400 ml-auto flex-shrink-0">
+                          {entry.count}
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Back to area */}
               <Link
