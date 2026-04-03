@@ -228,7 +228,15 @@ export default function SortableSpotCard({ item, index, onRemove, onSpotClick, o
             <DrumTimePicker
               label="From"
               value={startTimeText || "09:00"}
-              onChange={(v) => setStartTimeText(v)}
+              onChange={(v) => {
+                setStartTimeText(v);
+                // Auto-calculate end time from duration
+                const [h, m] = v.split(":").map(Number);
+                const totalMin = h * 60 + m + (item.spot.avgDurationMin || 60);
+                const endH = Math.floor(totalMin / 60) % 24;
+                const endM = Math.round(totalMin % 60 / 5) * 5;
+                setEndTimeText(`${String(endH).padStart(2, "0")}:${String(endM % 60).padStart(2, "0")}`);
+              }}
             />
             <span className="text-gray-300 text-sm pb-[70px]">—</span>
             <DrumTimePicker
