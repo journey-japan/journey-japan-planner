@@ -451,7 +451,7 @@ export default function EditorPage() {
         </div>
 
         {/* ===== MAIN LAYOUT (3 columns) ===== */}
-        <div className="flex-1 grid grid-cols-[300px_minmax(280px,1fr)_1fr] overflow-hidden">
+        <div className="flex-1 grid grid-cols-[300px_1fr_50vw] overflow-hidden">
           {/* SIDEBAR — Itinerary */}
           <div className="bg-white border-r border-gray-200 flex flex-col overflow-hidden relative">
             {/* Trip info bar */}
