@@ -116,12 +116,15 @@ export default function AdminDashboardPage() {
                 <p className="text-2xl font-bold text-gray-900">{stats.itineraryCount}</p>
                 <p className="text-xs text-gray-500 mt-1">Published Itineraries</p>
               </div>
-              <div className="bg-white rounded-xl border border-gray-200 p-5">
+              <Link
+                href="/admin/spots?photos=missing"
+                className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-accent/30 transition-all"
+              >
                 <p className={`text-2xl font-bold ${stats.spotsWithoutPhotos > 0 ? "text-amber-500" : "text-green-600"}`}>
                   {stats.spotsWithoutPhotos}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">Spots Missing Photos</p>
-              </div>
+              </Link>
             </div>
           )}
 

@@ -73,6 +73,7 @@ function AdminSpotsContent() {
   const [initialized, setInitialized] = useState(false);
   const [filterArea, setFilterArea] = useState<string>(searchParams.get("area") || "all");
   const [filterCategory, setFilterCategory] = useState<string>(searchParams.get("category") || "all");
+  const [filterPhotos, setFilterPhotos] = useState<string>(searchParams.get("photos") || "all");
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [viewMode, setViewMode] = useState<"grid" | "table">((searchParams.get("view") as "grid" | "table") || "grid");
 
@@ -81,20 +82,22 @@ function AdminSpotsContent() {
     const params = new URLSearchParams();
     if (filterArea !== "all") params.set("area", filterArea);
     if (filterCategory !== "all") params.set("category", filterCategory);
+    if (filterPhotos !== "all") params.set("photos", filterPhotos);
     if (searchQuery) params.set("q", searchQuery);
     if (viewMode !== "grid") params.set("view", viewMode);
     return params.toString();
-  }, [filterArea, filterCategory, searchQuery, viewMode]);
+  }, [filterArea, filterCategory, filterPhotos, searchQuery, viewMode]);
 
   function editUrl(spotId: string) {
     const back = currentFilterQs ? `?back=${encodeURIComponent(currentFilterQs)}` : "";
     return `/admin/spots/edit/${spotId}${back}`;
   }
 
-  const updateUrl = useCallback((area: string, category: string, q: string, view: string) => {
+  const updateUrl = useCallback((area: string, category: string, photos: string, q: string, view: string) => {
     const params = new URLSearchParams();
     if (area !== "all") params.set("area", area);
     if (category !== "all") params.set("category", category);
+    if (photos !== "all") params.set("photos", photos);
     if (q) params.set("q", q);
     if (view !== "grid") params.set("view", view);
     const qs = params.toString();
@@ -134,6 +137,9 @@ function AdminSpotsContent() {
     }
     if (filterCategory !== "all") {
       result = result.filter((s) => s.category === filterCategory);
+    }
+    if (filterPhotos === "missing") {
+      result = result.filter((s) => !s.photoUrls || s.photoUrls.length === 0);
     }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
@@ -205,13 +211,13 @@ function AdminSpotsContent() {
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => { setSearchQuery(e.target.value); updateUrl(filterArea, filterCategory, e.target.value, viewMode); }}
+              onChange={(e) => { setSearchQuery(e.target.value); updateUrl(filterArea, filterCategory, filterPhotos, e.target.value, viewMode); }}
               placeholder="Search spots..."
               className="flex-1 min-w-[200px] text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
             />
             <select
               value={filterArea}
-              onChange={(e) => { setFilterArea(e.target.value); updateUrl(e.target.value, filterCategory, searchQuery, viewMode); }}
+              onChange={(e) => { setFilterArea(e.target.value); updateUrl(e.target.value, filterCategory, filterPhotos, searchQuery, viewMode); }}
               className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent"
             >
               <option value="all">All Areas</option>
@@ -223,7 +229,7 @@ function AdminSpotsContent() {
             </select>
             <select
               value={filterCategory}
-              onChange={(e) => { setFilterCategory(e.target.value); updateUrl(filterArea, e.target.value, searchQuery, viewMode); }}
+              onChange={(e) => { setFilterCategory(e.target.value); updateUrl(filterArea, e.target.value, filterPhotos, searchQuery, viewMode); }}
               className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent"
             >
               <option value="all">All Categories</option>
@@ -233,9 +239,19 @@ function AdminSpotsContent() {
                 </option>
               ))}
             </select>
+            <select
+              value={filterPhotos}
+              onChange={(e) => { setFilterPhotos(e.target.value); updateUrl(filterArea, filterCategory, e.target.value, searchQuery, viewMode); }}
+              className={`text-sm border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent ${
+                filterPhotos === "missing" ? "border-amber-300 bg-amber-50" : "border-gray-200"
+              }`}
+            >
+              <option value="all">All Photos</option>
+              <option value="missing">Missing Photos</option>
+            </select>
             <div className="flex border border-gray-200 rounded-lg overflow-hidden">
               <button
-                onClick={() => { setViewMode("grid"); updateUrl(filterArea, filterCategory, searchQuery, "grid"); }}
+                onClick={() => { setViewMode("grid"); updateUrl(filterArea, filterCategory, filterPhotos, searchQuery, "grid"); }}
                 className={`px-3 py-2 text-sm ${
                   viewMode === "grid"
                     ? "bg-accent text-white"
@@ -245,7 +261,7 @@ function AdminSpotsContent() {
                 Grid
               </button>
               <button
-                onClick={() => { setViewMode("table"); updateUrl(filterArea, filterCategory, searchQuery, "table"); }}
+                onClick={() => { setViewMode("table"); updateUrl(filterArea, filterCategory, filterPhotos, searchQuery, "table"); }}
                 className={`px-3 py-2 text-sm ${
                   viewMode === "table"
                     ? "bg-accent text-white"
