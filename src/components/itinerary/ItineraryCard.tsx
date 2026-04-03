@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Itinerary } from "@/types";
 
 const CARD_GRADIENTS = [
@@ -31,11 +32,21 @@ export default function ItineraryCard({ itinerary, index = 0 }: ItineraryCardPro
   return (
     <Link href={`/itineraries/${itinerary.id}`}>
       <div className="border border-gray-200 rounded-xl overflow-hidden bg-white hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
-        {/* Image placeholder */}
+        {/* Cover image */}
         <div className={`relative h-44 bg-gradient-to-br ${gradient}`}>
-          <div className="absolute inset-0 flex items-center justify-center text-5xl opacity-40">
-            {emoji}
-          </div>
+          {itinerary.coverImageUrl ? (
+            <Image
+              src={itinerary.coverImageUrl}
+              alt={itinerary.title}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center text-5xl opacity-40">
+              {emoji}
+            </div>
+          )}
           {itinerary.isPro && (
             <span className="absolute top-3 left-3 bg-accent text-white text-[11px] font-bold px-2.5 py-1 rounded tracking-wide">
               PRO

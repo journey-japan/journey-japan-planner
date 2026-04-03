@@ -149,7 +149,42 @@ export async function getItineraries(area?: string): Promise<Itinerary[]> {
     return [];
   }
 
-  return (data || []).map(mapItinerary);
+  const itineraries = (data || []).map(mapItinerary);
+
+  // Fetch a cover image from the first spot for itineraries without one
+  const needsCover = itineraries.filter((it) => !it.coverImageUrl);
+  if (needsCover.length > 0) {
+    const { data: items } = await supabase
+      .from("itinerary_items")
+      .select(`
+        itinerary_days!inner(itinerary_id),
+        spot:spots!itinerary_items_spot_id_fkey(photo_urls)
+      `)
+      .in(
+        "itinerary_days.itinerary_id",
+        needsCover.map((it) => it.id)
+      )
+      .order("order_index", { ascending: true });
+
+    if (items) {
+      const coverMap = new Map<string, string>();
+      for (const item of items) {
+        const days = item.itinerary_days as unknown as Record<string, unknown> | Record<string, unknown>[];
+        const itineraryId = (Array.isArray(days) ? days[0]?.itinerary_id : days?.itinerary_id) as string;
+        if (coverMap.has(itineraryId)) continue;
+        const spot = item.spot as unknown as Record<string, unknown> | null;
+        const photoUrls = spot?.photo_urls as string[] | null;
+        if (photoUrls?.[0]) {
+          coverMap.set(itineraryId, photoUrls[0]);
+        }
+      }
+      for (const it of needsCover) {
+        it.coverImageUrl = coverMap.get(it.id);
+      }
+    }
+  }
+
+  return itineraries;
 }
 
 export async function getUserItineraries(userId: string): Promise<Itinerary[]> {
