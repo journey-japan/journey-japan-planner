@@ -4,7 +4,7 @@ import type { Spot, Itinerary, ItineraryDay, ItineraryItem, BlogPost, BlogCatego
 // ===== SPOTS =====
 
 export async function getSpots(area?: string): Promise<Spot[]> {
-  let query = supabase.from("spots").select("*");
+  let query = supabase.from("spots").select("*").eq("is_active", true);
   if (area) query = query.eq("area", area);
   query = query.order("name_en");
 
@@ -123,6 +123,7 @@ export async function getAllSpotSlugs(): Promise<string[]> {
   const { data, error } = await supabase
     .from("spots")
     .select("slug")
+    .eq("is_active", true)
     .not("slug", "is", null);
 
   if (error || !data) return [];
